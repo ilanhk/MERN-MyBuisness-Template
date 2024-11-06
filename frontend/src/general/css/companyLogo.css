@@ -1,0 +1,16 @@
+.company-logo {
+  display: flex;
+  align-items: center; /* Center the icon and text vertically */
+  margin: 2%;
+  padding: 0.2%;
+  width: auto; /* Adjust the width as needed */
+  height: 5%; /* You might want to adjust this */
+  font-size: 1.5rem;
+  color: rgb(9, 9, 180);
+}
+
+.logo-image {
+  height: 2.5rem;
+  width: 2.5rem;
+  margin-right: 0.2rem; /* Adjust the value as needed */
+}

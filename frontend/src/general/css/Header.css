@@ -1,0 +1,76 @@
+@import '../css/globalVariables.css';
+
+.navbar {
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content:flex-start; 
+  align-items: center; /* Vertically center the items */
+  background-color: var(--header-footer-bg-color);
+  width: 100%;
+  padding: 1rem;
+  z-index: 1000; /* Add this to make sure navbar stays above other elements */
+}
+
+.logo-container {
+  
+}
+
+.navbar-logo {
+  height: 50px;
+  width: auto; /* Maintains aspect ratio */
+}
+
+.navbar-list {
+  display: flex;
+  list-style-type: none;
+}
+
+.navbar-item {
+  position: relative;
+  margin-right: 1.5rem;
+}
+
+.user-button{
+  display: flex;
+  align-items: end;
+}
+
+.navbar-item a {
+  color: black;
+  font-family: var(--company-font-family);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.navbar-item a:hover {
+  color: #aaa7a7;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #dddcdc;
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 0.5rem 0;
+  min-width: 160px;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-item a {
+  color: black;
+  font-family: var(--company-font-family);
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.dropdown-item a:hover {
+  background-color: #bdb8b8;
+}

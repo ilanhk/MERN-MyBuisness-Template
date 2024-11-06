@@ -1,0 +1,46 @@
+@import '../../../general/css/globalVariables.css';
+
+.services-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--dark-blue-font);
+  font-family: var(--company-font-family);
+}
+
+.service-block {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  max-width: 100%; /* Ensure it stays within page bounds */
+  margin: 2rem;
+  overflow: hidden; /* Prevents overflow from child elements */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.service-image {
+  height: 30%;
+  width: 30%;
+  object-fit: cover; /* Ensures image stays contained */
+  border-radius: 3%
+}
+
+.service-info {
+  flex: 1; /* Allow this section to grow and fill remaining space */
+  margin-left: 2rem;
+  overflow: hidden; /* Prevents overflow in service info */
+}
+
+.service-title {
+  white-space: nowrap; /* Prevents text from wrapping to the next line */
+  overflow: hidden;    /* Hides overflow text */
+  text-overflow: ellipsis; /* Adds '...' for overflowed text */
+}
+
+.service-description {
+  word-wrap: break-word; /* Allows long words to break to the next line */
+  overflow-wrap: break-word;
+  max-height: 5rem; /* Limit maximum height */
+  overflow: hidden; /* Hide excess text */
+  margin-right: 1rem;
+}
