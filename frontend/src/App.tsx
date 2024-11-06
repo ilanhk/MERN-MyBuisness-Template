@@ -18,20 +18,20 @@ function App() {
   useEffect(()=>{
     const getRefreshTokenAndLogin = async ()=>{
       const data = await refreshHook();
-      const { refreshToken } = data.payload;
-      if(refreshToken){
-        console.log('data from refreshHook: ', refreshToken);
+      console.log('data from refresh: ', data);
+      if(data.payload){
+        const { refreshToken } = data.payload;
         await indexedDB.saveDataToDB('token', refreshToken);
       }else{
-        await logoutHook();
         await indexedDB.saveDataToDB('token', null);
+        await logoutHook();
       };
       navigate('/')
     };
 
     getRefreshTokenAndLogin()
 
-  },[refreshHook, logoutHook, navigate]);
+  },[ refreshHook, logoutHook, navigate]);
 
   return (
     <>
