@@ -33,9 +33,21 @@ const LoginScreen = () => {
       return;
     };
 
-    await loginHook(email, password);
-    console.log('auth: ', auth);
-    navigate('/');
+    if(auth.twoFaSecret){
+      navigate('/twofactorauthention');
+    }
+
+    try {
+      await loginHook(email, password);
+      if(auth.twoFaSecret){
+        navigate('/twofactorauthention');
+      } else{
+        navigate('/');
+      };
+    } catch (error: any) {
+      
+      setError(error);
+    }
  
   };
 

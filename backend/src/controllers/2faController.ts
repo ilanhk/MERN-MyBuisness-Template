@@ -21,6 +21,7 @@ export const generate2fa  = async (req: Request, res: Response) => {
         _id: updatedUser._id,
         name: updatedUser.fullName,
         email: updatedUser.email,
+        inEmailList: updatedUser.inEmailList,
       }
     });
 

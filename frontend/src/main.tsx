@@ -18,14 +18,19 @@ import ProductsScreen from './features/products/ProductsScreen.tsx';
 import ProductScreen from './features/products/ProductScreen.tsx';
 import ProfileScreen from './features/profile/ProfileScreen.tsx';
 import ForgotPasswordScreen from './features/auth/ForgotPasswordScreen.tsx';
+import AdminScreen from './features/company/AdminScreen.tsx';
 import AdminProductPageScreen from './features/products/AdminProductPageScreen.tsx';
 import AdminProductEditScreen from './features/products/AdminProductEditScreen.tsx';
 import AdminUserListScreen from './features/users/AdminUserListScreen.tsx';
 import AdminUserEditScreen from './features/users/AdminUserEditScreen.tsx';
+import AdminJobsLists from './features/company/jobs/AdminJobsLists.tsx';
+import AdminEditJob from './features/company/jobs/AdminEditJob.tsx';
+import AdminEditPagesScreen from './features/company/AdminEditPagesScreen.tsx';
 import AboutUsScreen from './features/company/AboutUsScreen.tsx';
 import ServicesScreen from './features/company/ServicesScreen.tsx';
 import CareersScreen from './features/company/jobs/CareersScreen.tsx';
 import ContactUsScreen from './features/company/ContactUsScreen.tsx';
+import TwoFAAuthenticationLogin from './features/auth/TwoFAAuthenticationLogin.tsx';
 import './App.css';
 
 const router = createBrowserRouter(
@@ -45,15 +50,19 @@ const router = createBrowserRouter(
       <Route path='' element={<PrivateRoute />}>
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+          <Route path="/twofactorauthention" element={<TwoFAAuthenticationLogin />}/>
       </Route>
 
       <Route path='' element={<AdminRoute />}>
+          <Route path="/admin" element={<AdminScreen />} />
           <Route path="/admin/productlist" element={<AdminProductPageScreen />} />
           <Route path="/admin/productlist/:pageNumber" element={<AdminProductPageScreen />} />
           <Route path="/admin/product/:id/edit" element={<AdminProductEditScreen />} />
           <Route path="/admin/userlist" element={<AdminUserListScreen />} />
           <Route path="/admin/user/:id/edit" element={<AdminUserEditScreen />} />
-          <Route path="/admin/analytics" element={<AdminUserListScreen />} />
+          <Route path="/admin/joblist" element={<AdminJobsLists />} />
+          <Route path="/admin/job/:id/edit" element={<AdminEditJob />} />
+          <Route path="/admin/editpages" element={<AdminEditPagesScreen />} />
       </Route>
     </Route>
   )

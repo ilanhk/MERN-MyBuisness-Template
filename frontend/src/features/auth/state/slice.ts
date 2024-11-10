@@ -25,6 +25,7 @@ export type AuthState = {
   isEmployee: string;
   inEmailList: boolean;
   accessToken: string | null;
+  twoFaSecret: string | null;
   refreshToken: string | null;
 };
 

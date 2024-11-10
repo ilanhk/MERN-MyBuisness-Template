@@ -18,8 +18,7 @@ export const navItems: NavItem[] = [
 export const adminItems: NavItem = { name: 'Admin', path: '/admin', dropdown: [
   { name: 'Users', path: '/admin/userlist' },
   { name: 'Products', path: '/admin/productlist'},
-  { name: 'Jobs', path: '/admin/job' },
-  { name: 'Analytics', path: '/admin/analytics' },
+  { name: 'Jobs', path: '/admin/joblist' },
   { name: 'Edit pages', path: '/admin/editpages' },
   ] 
 };
