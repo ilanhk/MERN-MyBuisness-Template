@@ -9,6 +9,7 @@ import productRoutes from './routes/productRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import jobRoutes from './routes/jobRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import comapanyInfoRoutes from './routes/companyInfoRoutes';
 import serviceRoutes from './routes/serviceRoutes';
 
 
@@ -49,15 +50,19 @@ app.use('/api/products', productRoutes);
 //upload routes
 app.use('/api/upload', uploadRoutes);
 
-
 //job routes
 app.use('/api/jobs', jobRoutes);
+
+//applicants routes
+
+//companyInfo routes
+app.use('/api/companyInfo', comapanyInfoRoutes);
+
 
 //services routes
 app.use('/api/services', serviceRoutes);
 
 //applicants routes
-
 
 //Analytics routes
 app.use('/api/analytics', analyticsRoutes);

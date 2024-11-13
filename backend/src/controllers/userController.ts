@@ -297,12 +297,13 @@ const forgotPassword = async (req: Request, res: Response) => {
   const { email } = req.body;
 
   try {
+    // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
 
-    //Generate a reset token
+    // Generate and hash a reset token
     const resetToken = crypto.randomBytes(32).toString('hex');
     user.resetPasswordToken = crypto
       .createHash('sha256')
@@ -311,35 +312,39 @@ const forgotPassword = async (req: Request, res: Response) => {
     user.resetPasswordExpires = Date.now() + 3600000; // Token expires in 1 hour
     await user.save();
 
-    // Configure transporter with secure connection
+    // Construct the reset URL
+    const resetUrl = `${process.env.BASE_URL}/reset-password/${resetToken}`;
+
+    // Set up nodemailer transporter securely
     const transporter = nodemailer.createTransport({
       host: 'smtp.office365.com',
-      port: 465, // Secure port for SMTP with TLS/SSL
-      secure: true, // Force TLS
+      port: 465,
+      secure: true,
       auth: {
-        user: process.env.OUTLOOK_EMAIL, // Use environment variables for credentials
-        pass: process.env.OUTLOOK_PASSWORD, // Use app-specific password or OAuth2
+        user: process.env.OUTLOOK_EMAIL,
+        pass: process.env.OUTLOOK_PASSWORD,
       },
       tls: {
-        rejectUnauthorized: true, // Ensure the certificate is valid
+        rejectUnauthorized: true,
       },
     });
 
-    const resetUrl = `http://your-domain.com/reset-password/${resetToken}`;
-
+    // Define the email options
     const mailOptions = {
       to: user.email,
-      from: 'password-reset@your-domain.com',
-      subject: 'Password Reset',
-      text: `You are receiving this because you (or someone else) have requested the reset of your password.\n\n
-               Please click on the following link, or paste this into your browser to complete the process:\n\n
-               ${resetUrl}\n\n
-               If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+      from: process.env.OUTLOOK_EMAIL, // Using the verified sender address
+      subject: 'Password Reset Request',
+      text: `You are receiving this email because a password reset request was made for your account.\n\n
+             Please click on the following link, or paste it into your browser to complete the reset process:\n\n
+             ${resetUrl}\n\n
+             If you did not request this, you can ignore this email and your password will remain unchanged.`,
     };
 
+    // Send the email and respond with success
     await transporter.sendMail(mailOptions);
-    return res.status(200).json({ message: 'Password reset link sent' });
+    return res.status(200).json({ message: 'Password reset link sent to your email address' });
   } catch (error) {
+    console.error("Error in forgotPassword controller:", error);
     return res.status(500).json({ message: 'Error sending reset email' });
   }
 };

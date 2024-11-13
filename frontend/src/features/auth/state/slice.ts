@@ -107,6 +107,34 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return response.data;
 });
 
+
+export const forgotPassword = createAsyncThunk(
+  'auth/forgot-password',
+  async ({ email }: { email: string;}) => {
+    const response = await axios.post(
+      `${BASE_URL}/users/forgot-password`,
+      { email },
+      { withCredentials: true }
+    );
+
+    return response.data;
+  }
+);
+
+
+export const resetPassword = createAsyncThunk(
+  'auth/reset-password',
+  async ({ newPassword }: { newPassword: string;}) => {
+    const response = await axios.post(
+      `${BASE_URL}/users/reset-password`,
+      { newPassword },
+      { withCredentials: true }
+    );
+
+    return response.data;
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -149,7 +177,27 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.status = EnumStatus.Success;
         state.auth = {} as AuthState;
-      });
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.status = EnumStatus.Loading;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action: PayloadAction<AuthState>) => {
+        state.status = EnumStatus.Success;
+        state.auth = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state) => {
+        state.status = EnumStatus.Fail;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.status = EnumStatus.Loading;
+      })
+      .addCase(resetPassword.fulfilled, (state, action: PayloadAction<AuthState>) => {
+        state.status = EnumStatus.Success;
+        state.auth = action.payload;
+      })
+      .addCase(resetPassword.rejected, (state) => {
+        state.status = EnumStatus.Fail;
+      })
   },
 });
 

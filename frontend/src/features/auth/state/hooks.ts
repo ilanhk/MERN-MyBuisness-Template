@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
-import { login, refresh, register, logout } from "./slice";
+import { login, refresh, register, logout, forgotPassword, resetPassword } from "./slice";
 import { selectAuth, selectAuthStatus } from "./selectors";
 
 //get auth
@@ -70,6 +70,30 @@ export const useLogout = () => {
   return useCallback(
     () => {
       return dispatch(logout());
+    },
+    [dispatch]
+  );
+};
+
+
+// forgot password
+export const useForgotPassword = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    (email: string) => {
+      return dispatch(forgotPassword({email}));
+    },
+    [dispatch]
+  );
+};
+
+
+// reset password
+export const useResetPassword = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    (newPassword: string) => {
+      return dispatch(resetPassword({newPassword}));
     },
     [dispatch]
   );

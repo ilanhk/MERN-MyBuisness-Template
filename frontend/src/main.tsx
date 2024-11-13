@@ -30,7 +30,6 @@ import AboutUsScreen from './features/company/AboutUsScreen.tsx';
 import ServicesScreen from './features/company/ServicesScreen.tsx';
 import CareersScreen from './features/company/jobs/CareersScreen.tsx';
 import ContactUsScreen from './features/company/ContactUsScreen.tsx';
-import TwoFAAuthenticationLogin from './features/auth/TwoFAAuthenticationLogin.tsx';
 import './App.css';
 
 const router = createBrowserRouter(
@@ -50,7 +49,8 @@ const router = createBrowserRouter(
       <Route path='' element={<PrivateRoute />}>
           <Route path="/profile" element={<ProfileScreen />} />
           <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
-          <Route path="/twofactorauthention" element={<TwoFAAuthenticationLogin />}/>
+          <Route path="/reset-password/:id" element={<ForgotPasswordScreen />} />
+          
       </Route>
 
       <Route path='' element={<AdminRoute />}>

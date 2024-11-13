@@ -52,7 +52,7 @@ const RegisterScreen = () => {
     if ( password !== confirmPassword) {
       setError("passwords dont match");
       return;
-    }
+    };
 
     await registerHook( 
       firstName,

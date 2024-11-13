@@ -41,12 +41,12 @@ export interface ICompanyInfo extends Document {
       postalCode: string;
       fullAddress: string;
     };
-    socialmedia: {
+    socialMedia: {
       linkedin: string;
       facebook: string;
       instagram: string;
       twitter: string;
-      tickTock: string;
+      tiktok: string;
       youtube: string;
       amazon: string;
       aliexpress: string;
@@ -58,50 +58,50 @@ const companyInfoSchema: Schema = new mongoose.Schema(
   {
     home: {
       valueProposition: {
-        proposition: { type: String, required: true },
-        callToAction: { type: String, required: true },
+        proposition: { type: String, required: false },
+        callToAction: { type: String, required: false },
       },
       customerSection: {
-        title: { type: String, required: true },
-        description: { type: String, required: true },
+        title: { type: String, required: false },
+        description: { type: String, required: false },
       },
     },
     about: {
-      title: { type: String, required: true },
-      description: { type: String, required: true },
-      image: { type: String, required: true },
+      title: { type: String, required: false },
+      description: { type: String, required: false },
+      image: { type: String, required: false },
     },
     services: {
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      title: { type: String, required: false },
+      description: { type: String, required: false },
     },
     contactUs: {
-      title: { type: String, required: true },
-      description: { type: String, required: true },
+      title: { type: String, required: false },
+      description: { type: String, required: false },
       email: {
-        contact: { type: String, required: true },
+        contact: { type: String, required: false },
         website: { type: String, required: false },
       },
       phone: {
-        countryCode: { type: String, required: true },
-        phone: { type: String, required: true },
+        countryCode: { type: String, required: false },
+        phone: { type: String, required: false },
         fax: { type: String, required: false },
       },
       address: {
-        address1: { type: String, required: true },
+        address1: { type: String, required: false },
         address2: { type: String, required: false },
         area: { type: String, required: false },
-        city: { type: String, required: true },
-        country: { type: String, required: true },
-        postalCode: { type: String, required: true },
-        fullAddress: { type: String, required: true },
+        city: { type: String, required: false },
+        country: { type: String, required: false },
+        postalCode: { type: String, required: false },
+        fullAddress: { type: String, required: false },
       },
-      socialmedia: {
-        linkedin: { type: String, required: true },
+      socialMedia: {
+        linkedin: { type: String, required: false },
         facebook: { type: String, required: false },
         instagram: { type: String, required: false },
         twitter: { type: String, required: false },
-        tickTock: { type: String, required: false },
+        tiktok: { type: String, required: false },
         youtube: { type: String, required: false },
         amazon: { type: String, required: false },
         aliexpress: { type: String, required: false },

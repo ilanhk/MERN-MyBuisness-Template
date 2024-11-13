@@ -27,9 +27,9 @@ router.post('/login', loginUser);
 
 router.route('/profile').get(protect, getUserProfile).put(protect, updateUserProfile);
 
-router.route('/forgot-password').post(protect, forgotPassword);
+router.route('/forgot-password').post(forgotPassword);
 
-router.route('/reset-password').post(protect, resetPassword);
+router.route('/reset-password').post(resetPassword);
 
 router.route('/:id').delete(protect, superAdmin, deleteUser).get(getUserById).put(protect, admin, updateUser);
 
