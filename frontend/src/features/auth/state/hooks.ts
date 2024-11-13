@@ -19,8 +19,8 @@ export const useSelectAuthStatus = ()=>{
 export const useLogin = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
-    (email: string, password: string) => {
-      return dispatch(login({ email, password }));
+    (email: string, password: string, twoFaCode?: string) => {
+      return dispatch(login({ email, password, twoFaCode }));
     },
     [dispatch]
   );

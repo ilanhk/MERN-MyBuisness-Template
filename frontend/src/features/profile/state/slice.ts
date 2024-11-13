@@ -24,8 +24,11 @@ export type ProfileState = {
   email: string;
   isEmployee: string;
   inEmailList: boolean;
+  twoFaSecret: string | null;
   
 };
+
+export type PartialProfileState = Partial<ProfileState>;
 
 export type ProfileStateType = {
   profile: ProfileState;
@@ -54,7 +57,7 @@ export const getUserProfile = createAsyncThunk(
 
 export const updateUserProfile = createAsyncThunk(
   'profile/updateProfile',
-  async (data: ProfileState) => {
+  async (data: PartialProfileState) => {
     const response = await axios.put(
       `${BASE_URL}/profile`,
       data,

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
-import { getUserProfile, updateUserProfile, ProfileState } from "./slice";
+import { getUserProfile, updateUserProfile, PartialProfileState } from "./slice";
 import { selectProfile, selectProfileStatus } from "./selectors";
 
 //get profile state
@@ -16,7 +16,6 @@ export const useSelectAuthStatus = ()=>{
 
 
 //get user profile
-//refresh
 export const useGetUserProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
@@ -32,7 +31,7 @@ export const useGetUserProfile = () => {
 export const useUpdateProfile = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
-    (body: ProfileState) => {
+    (body: PartialProfileState) => {
       return dispatch(updateUserProfile(body));
     },
     [dispatch]

@@ -28,3 +28,7 @@
   display: flex;
   flex-direction: row;
 }
+
+.remove-twofa-button{
+  margin-left: 2%;
+}

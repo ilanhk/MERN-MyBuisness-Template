@@ -41,10 +41,10 @@ const initialState: AuthStateType = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ email, password }: { email: string; password: string }) => {
+  async ({ email, password, twoFaCode }: { email: string; password: string, twoFaCode?: string }) => {
     const response = await axios.post(
       `${BASE_URL}/users/login`,
-      { email, password },
+      { email, password, twoFaCode },
       { withCredentials: true }
     );
     //createAsyncThunk - use for any code that needs to be aync

@@ -17,19 +17,24 @@ declare module 'express' {
 // @route POST /api/users/login
 // @access Public
 const loginUser = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password, twoFaToken } = req.body;
+  const { email, password, twoFaCode } = req.body;
 
-  const user = await User.findOne({ email }); // find one record in the DB
+  const user = await User.findOne({ email }); // Find the user in the DB
 
   if (user && (await user.matchPassword(password))) {
+    // Check if 2FA is enabled
     if (user.twoFaSecret) {
-      const isVerified = verifyToken(twoFaToken, user.twoFaSecret);
+      // Ensure twoFaToken is provided
+      if (!twoFaCode) {
+        return res.status(400).json({ success: false, message: '2FA code required' });
+      };
+
+      // Verify the 2FA token
+      const isVerified = verifyToken(twoFaCode, user.twoFaSecret);
       if (!isVerified) {
-        return res
-          .status(400)
-          .json({ success: false, message: 'Invalid OTP!' });
-      }
-    }
+        return res.status(400).json({ message: 'Invalid 2FA' });
+      };
+    };
 
     const userId = user._id + '';
     const { accessToken, refreshToken } = getTokens(res, userId);
@@ -51,8 +56,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
       refreshToken,
     });
   } else {
-    res.status(401); //401 means unauthorized
-    throw new Error('Invalid Email or Password');
+    return res.status(401).json({ message:'Invalid Email or Password' });
   }
 });
 
@@ -178,6 +182,7 @@ const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
       email: user.email,
       isEmployee: user.isEmployee,
       inEmailList: user.inEmailList,
+      twoFaSecret: user.twoFaSecret,
     });
   } else {
     return res.status(404).json({ message: 'User not found' });
@@ -196,16 +201,18 @@ const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
     user.fullName = req.body.fullName || user.fullName;
     user.email = req.body.email || user.email;
     user.inEmailList = req.body.inEmailList || user.inEmailList;
+  
 
     if (req.body.password) {
       user.password = req.body.password;
     }
     //bc password is hashed we only want to change it if its being updated.
 
-    if (req.body.twoFaSecret) {
+    if ('twoFaSecret' in req.body) {
       user.twoFaSecret = req.body.twoFaSecret;
     }
     //change secret if need to change
+    //this will allow a null value in req.body.twoFaSecret
 
     const updatedUser = await user.save();
 
@@ -216,6 +223,7 @@ const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
       fullName: updatedUser.fullName,
       email: updatedUser.email,
       inEmailList: updatedUser.inEmailList,
+      twoFaSecret: updatedUser.twoFaSecret,
     });
   } else {
     return res.status(404).json({ message: 'User not found' });

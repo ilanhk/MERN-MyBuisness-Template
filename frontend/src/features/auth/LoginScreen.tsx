@@ -4,11 +4,16 @@ import { IndDB } from '../../general/utils/indexedDB'
 import { useLogin, useSelectAuth } from "./state/hooks";
 import AuthFormButton from "./components/AuthFormButton";
 
+
 const LoginScreen = () => {
   const auth = useSelectAuth();
   
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const emailRef = useRef<HTMLInputElement>(null); // get reference from to an html element expecially its value
   const passwordRef = useRef<HTMLInputElement>(null);
+  const twoFARef = useRef<HTMLInputElement>(null);
+  const [twoFARequired, setTwoFARequired] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const indexedDB = IndDB.instance;
@@ -25,28 +30,44 @@ const LoginScreen = () => {
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
 
-     const email = emailRef.current?.value;
-     const password = passwordRef.current?.value;
+     const emailR = emailRef.current?.value + '';
+     const passwordR = passwordRef.current?.value + '';
+    setEmail(emailR);
+    setPassword(passwordR)
+     const twoFACode = twoFARef.current?.value;
 
      if (!email || !password) {
       setError("Both fields are required.");
       return;
     };
 
-    if(auth.twoFaSecret){
-      navigate('/twofactorauthention');
-    }
-
     try {
-      await loginHook(email, password);
-      if(auth.twoFaSecret){
-        navigate('/twofactorauthention');
+      let response;
+      if(twoFARequired){
+        if(!twoFACode){
+          setError("2FA code required.");
+        };
+
+        response = await loginHook(email, password, twoFACode);
       } else{
-        navigate('/');
+        response = await loginHook(email, password);
       };
-    } catch (error: any) {
       
-      setError(error);
+      if (response.meta.requestStatus === "fulfilled") {
+        navigate('/'); // Navigate to the main page
+      } else {
+        setTwoFARequired(true);
+        setError(null);
+      }
+    } catch (err: any) {
+      // Catch specific error based on error message or code
+      if (err.response && err.response.data) {
+        const errorMessage = err.response.data.message; // Adjust based on actual error structure
+        setError(errorMessage);
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+      console.error("Login error:", err);
     }
  
   };
@@ -55,7 +76,14 @@ const LoginScreen = () => {
     <div className='form-container'>
       <h2 className='form-title'>Login</h2>
       <form className='form-form' onSubmit={submitHandler} noValidate>
+        { twoFARequired ? (
           <div className='form-input'>
+          <label htmlFor="twoFA">2FA Code: </label>
+          <input ref={twoFARef} id="twoFA" type="password" required  />
+        </div>
+        ) : (
+          <>
+            <div className='form-input'>
             <label htmlFor="email">Email: </label>
             <input ref={emailRef} id="email" type="email" required  defaultValue={'charlie.c@example.com'}/>
           </div>
@@ -64,6 +92,10 @@ const LoginScreen = () => {
             <label htmlFor="password">Password: </label>
             <input ref={passwordRef} id="password" type="password" required  defaultValue={'Charliechaplain123456789!'}/>
           </div>
+
+          </>
+        )}
+          
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
