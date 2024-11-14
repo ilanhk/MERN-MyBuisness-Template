@@ -10,7 +10,7 @@ import {
 import { protect, employee } from '../middlewares/authMiddleware';
 import checkObjectId from '../middlewares/checkObjectId';
 
-router.route('/').get(getCompanyInfos).post(protect, employee, createCompanyInfo);
+router.route('/').get(getCompanyInfos).post(createCompanyInfo);
 router
   .route('/:id')
   .get(checkObjectId, getCompanyInfoById)

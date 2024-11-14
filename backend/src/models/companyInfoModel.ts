@@ -52,17 +52,29 @@ export interface ICompanyInfo extends Document {
       aliexpress: string;
     };
   };
-}
+};
 
 const companyInfoSchema: Schema = new mongoose.Schema(
   {
     home: {
       valueProposition: {
-        proposition: { type: String, required: false },
-        callToAction: { type: String, required: false },
+        proposition: { 
+          type: String, 
+          required: false,
+          default: null 
+        },
+        callToAction: { 
+          type: String, 
+          required: false,
+          default: null
+        },
       },
       customerSection: {
-        title: { type: String, required: false },
+        title: { 
+          type: String, 
+          required: false,
+          default: null 
+        },
         description: { type: String, required: false },
       },
     },
@@ -84,8 +96,8 @@ const companyInfoSchema: Schema = new mongoose.Schema(
       },
       phone: {
         countryCode: { type: String, required: false },
-        phone: { type: String, required: false },
-        fax: { type: String, required: false },
+        phone: { type: String, required: false, },
+        fax: { type: String, required: false, default: null },
       },
       address: {
         address1: { type: String, required: false },
@@ -97,14 +109,14 @@ const companyInfoSchema: Schema = new mongoose.Schema(
         fullAddress: { type: String, required: false },
       },
       socialMedia: {
-        linkedin: { type: String, required: false },
-        facebook: { type: String, required: false },
-        instagram: { type: String, required: false },
-        twitter: { type: String, required: false },
-        tiktok: { type: String, required: false },
-        youtube: { type: String, required: false },
-        amazon: { type: String, required: false },
-        aliexpress: { type: String, required: false },
+        linkedin: { type: String, required: false, default: null },
+        facebook: { type: String, required: false, default: null },
+        instagram: { type: String, required: false, default: null},
+        twitter: { type: String, required: false, default: null },
+        tiktok: { type: String, required: false, default: null },
+        youtube: { type: String, required: false, default: null },
+        amazon: { type: String, required: false, default: null },
+        aliexpress: { type: String, required: false, default: null },
       },
     },
   },

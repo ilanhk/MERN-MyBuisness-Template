@@ -55,14 +55,8 @@ const createCompanyInfo = async (req: Request, res: Response) => {
         fullAddress: '123 Sample St, Suite 100, Business District, Sample City, Sample Country, 12345'
       },
       socialMedia: {
-        linkedin: 'https://linkedin.com/company/samplecompany',
-        facebook: 'https://facebook.com/samplecompany',
-        instagram: 'https://instagram.com/samplecompany',
-        twitter: 'https://twitter.com/samplecompany',
-        tiktok: 'https://tiktok.com/@samplecompany',
-        youtube: 'https://youtube.com/samplecompany',
-        amazon: 'https://amazon.com/samplecompany',
-        aliexpress: 'https://aliexpress.com/store/samplecompany'
+        linkedin: 'https://www.linkedin.com/in/ilan-lieberman-9a1043132/',
+        
       }
     }
   });

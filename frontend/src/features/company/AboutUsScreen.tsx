@@ -1,10 +1,19 @@
+import { useSelectCompanyInfo } from './companyInfo/state/hooks';
 import './css/about-us.css';
 
 const AboutUsScreen = () => {
+  const companyInfoArray = useSelectCompanyInfo();
+  const info = companyInfoArray?.about;
+
+  
+  // Check if info exists before destructuring
+  const { title, description, image } = info || {};
+
   return (
     <div className="about-us">
-      <h2 className="about-title">About us</h2>
-      <p className="about-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Veritatis accusantium inventore quaerat molestiae? Illum, eius. Distinctio veritatis commodi libero culpa autem amet modi sed sunt cupiditate esse! Deleniti, doloribus nihil? ewrywergjdwrsthjklwersqweqfhjkl;wfdqhjklwfjlqwjf2weojefrwef;lkjqwejklfqwefwqefjkl;qweklfwe2jklf</p>
+      <h2 className="about-title">{title}</h2>
+      <img src={image} alt="about the company" />
+      <p className="about-text">{description}</p>
     </div>
   )
 };

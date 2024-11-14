@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom"; // outlet for the react 
 import { ToastContainer } from 'react-toastify';
 import { IndDB } from "./general/utils/indexedDB";
 import { useRefresh, useLogout } from "./features/auth/state/hooks";
+import { useSelectCompanyInfo, useCreateCompanyInfo } from "./features/company/companyInfo/state/hooks";
 import Header from "./general/components/Header";
 import Footer from "./general/components/Footer";
 import './App.css'
@@ -14,6 +15,8 @@ function App() {
   const navigate = useNavigate();
   const refreshHook = useRefresh();
   const logoutHook = useLogout();
+  const companyInfo = useSelectCompanyInfo();
+  const createCompanyInfoHook = useCreateCompanyInfo();
 
   useEffect(()=>{
     const getRefreshTokenAndLogin = async ()=>{
@@ -29,9 +32,20 @@ function App() {
       navigate('/')
     };
 
-    getRefreshTokenAndLogin()
+    const getOrCreateCompanyInfo = async()=>{
+      if(!companyInfo.home){
+        const companyData = await createCompanyInfoHook();
+        console.log('company data', companyData)
+        return companyData.payload;
+      } else{
+        return;
+      }
+    };
 
-  },[ refreshHook, logoutHook, navigate]);
+    getRefreshTokenAndLogin()
+    getOrCreateCompanyInfo()
+
+  },[ refreshHook, logoutHook, navigate, createCompanyInfoHook, companyInfo.home]);
 
   return (
     <>

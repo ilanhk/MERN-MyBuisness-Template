@@ -1,18 +1,16 @@
 import HeroBlock from "../components/HeroBlock";
+import CustomerSection from "../components/CustomerSection";
 
 
 const HomeScreen = () => {
   return (
     <div>
-      <HeroBlock 
-        title='Value propersition - Let us Handle getting your products from the factories' 
-        text='call to action message...' 
-      />
-  
-      
+      <HeroBlock />
+      <h3>Carosel of categories with top products</h3>
+      <CustomerSection />
       <h3>Carosel of categories with image of the top product</h3>
-      <h3>Big customers we done business  </h3>
-      <h3>Customer testamonials with their photo and quote</h3>
+      
+      
       <h3>Call to action button</h3>
       <h3>Call to action button</h3>
       <h3>Call to action button</h3>
