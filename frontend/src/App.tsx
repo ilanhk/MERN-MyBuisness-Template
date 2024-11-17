@@ -29,7 +29,7 @@ function App() {
         await indexedDB.saveDataToDB('token', null);
         await logoutHook();
       };
-      navigate('/')
+      // navigate('/');
     };
 
     const getOrCreateCompanyInfo = async()=>{

@@ -100,12 +100,13 @@ export const register = createAsyncThunk(
 );
 
 export const logout = createAsyncThunk('auth/logout', async () => {
-  const response = await axios.post(`${BASE_URL}/users/logout`, {
+  const response = await axios.post(`${BASE_URL}/users/logout`, {}, {
     withCredentials: true,
   });
 
   return response.data;
 });
+//{} is the payload because just sending empty data to loggout
 
 
 export const forgotPassword = createAsyncThunk(

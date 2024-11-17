@@ -1,16 +1,18 @@
-@import '../../../general/css/globalVariables.css';
+/* @import '../../../general/css/globalVariables.css'; */
 
 .profile-container{
   display: flex;
   flex-direction: row;
   width: 100%;
   height: 100%;
-};
+}
+
+.h3{color: pink;}
 
 .profile-menu{
   width: 30%;
   height: 100%;
-  margin-right: 20%; 
+  margin-right: 5%; 
 }
 
 .profile-section{

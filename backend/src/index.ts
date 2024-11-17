@@ -58,11 +58,13 @@ app.use('/api/jobs', jobRoutes);
 //companyInfo routes
 app.use('/api/companyInfo', comapanyInfoRoutes);
 
-
 //services routes
 app.use('/api/services', serviceRoutes);
 
 //applicants routes
+
+
+//employee tasks routes
 
 //Analytics routes
 app.use('/api/analytics', analyticsRoutes);

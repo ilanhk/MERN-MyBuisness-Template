@@ -16,6 +16,12 @@ export interface IUser extends Document {
   resetPasswordToken: string;
   resetPasswordExpires: number;
   matchPassword(enteredPassword: string): Promise<boolean>;
+  //employeeTotalSalary??
+  //job title
+  // customerCompany:{
+  //   name: string;
+  //   website: string;
+  // }
 }
 
 const UserSchema: Schema = new Schema({

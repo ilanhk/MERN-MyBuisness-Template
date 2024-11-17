@@ -162,6 +162,9 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 // @access Private
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   res.clearCookie(process.env.ACCESS_TOKEN_NAME!);
+  res.clearCookie(process.env.REFRESH_TOKEN_NAME!);
+  req.user = undefined;
+  console.log('logging out!!')
   //to clear the cookie
 
   return res.status(200).json({ message: 'Logged out successfully' });

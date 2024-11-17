@@ -1,6 +1,10 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ICompanyInfo extends Document {
+  company: {
+    name: string;
+    logoImage: string;
+  }
   home: {
     valueProposition: {
       proposition: string;
@@ -23,6 +27,7 @@ export interface ICompanyInfo extends Document {
   contactUs: {
     title: string;
     description: string;
+    image: string,
     email: {
       contact: string;
       website: string;
@@ -56,6 +61,10 @@ export interface ICompanyInfo extends Document {
 
 const companyInfoSchema: Schema = new mongoose.Schema(
   {
+    company: {
+      name: { type: String, required: false },
+      logoImage: { type: String, required: false },
+    },
     home: {
       valueProposition: {
         proposition: { 
@@ -77,6 +86,7 @@ const companyInfoSchema: Schema = new mongoose.Schema(
         },
         description: { type: String, required: false },
       },
+      companyLogoImage: { type: String, required: false },
     },
     about: {
       title: { type: String, required: false },
@@ -90,6 +100,7 @@ const companyInfoSchema: Schema = new mongoose.Schema(
     contactUs: {
       title: { type: String, required: false },
       description: { type: String, required: false },
+      image: { type: String, required: false },
       email: {
         contact: { type: String, required: false },
         website: { type: String, required: false },

@@ -1,4 +1,13 @@
-import { FaLinkedin } from 'react-icons/fa';
+import { 
+  FaLinkedin, 
+  FaFacebook, 
+  FaInstagram, 
+  FaXTwitter, 
+  FaTiktok, 
+  FaYoutube, 
+  FaAmazon, 
+  FaAliexpress 
+} from 'react-icons/fa';
 import '../css/footer.css';
 import CompanyLogo from './CompanyLogo';
 
