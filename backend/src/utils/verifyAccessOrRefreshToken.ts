@@ -8,27 +8,34 @@ declare module 'express' {
     }
 };
 
-const verifyAccessOrRefreshToken = async (req: Request, res: Response, next: NextFunction, token: string, secret: string)=>{
-  if(token){
+const verifyAccessOrRefreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+  token: string | undefined,
+  secret: string
+) => {
+  if (token) {
     try {
-        const decoded_token = jwt.verify(token, secret) as JwtPayload;
-        console.log('decoded token: ', decoded_token)
-        req.user = await User.findById(decoded_token.userId).select('-password'); 
-        // .select('-password') to get the obj without the password attribute
-        // req.user - gets user for all our routes
+      const decoded_token = jwt.verify(token, secret) as JwtPayload;
+      console.log('Decoded token:', decoded_token);
 
-        //make new refesh and access
-        // edit user with new refresh and access
+      const user = await User.findById(decoded_token.userId).select('-password');
+      if (!user) {
+        console.error('User not found in database');
+        return res.status(401).json({ message: 'User not found' });
+      }
 
-        next(); // for next middleware or to continue
+      req.user = user; // Attach the user object to the request
+      next(); // Proceed to the next middleware
     } catch (error) {
-        console.log(error);
-        res.sendStatus(401);
-    };
-
+      console.error('Token verification error:', error);
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
   } else {
-      res.sendStatus(401);
-  };
+    console.error('No token provided');
+    return res.status(401).json({ message: 'No token provided' });
+  }
 };
 
 export default verifyAccessOrRefreshToken;

@@ -60,35 +60,10 @@ const createCompanyInfo = async (req: Request, res: Response) => {
       }
     }
   });
-
   
   const createdCompanyInfo = await companyInfo.save();
   return res.status(201).json(createdCompanyInfo); //201 means something was created
 };
-
-
-// @desc Fetch all company infos
-// @route GET /api/company-info
-// @access Public
-const getCompanyInfos = asyncHandler(async (req: Request, res: Response) => {
-    const infos = await CompanyInfo.find({}); 
-    return res.status(200).json(infos); 
-});
-
-
-// @desc Get company info by id
-// @route GET /api/company-info/:id
-// @access Private/Admin
-const getCompanyInfoById = asyncHandler(async (req: Request, res: Response) => {
-  const companyInfo = await CompanyInfo.findById(req.params.id);
-
-  if (companyInfo){
-      return res.status(200).json(companyInfo);
-  } else {
-    return res.status(404).json({ message: 'Company Info not found'});
-  };
- 
-});
 
 
 // @desc Update company info
@@ -98,66 +73,103 @@ const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
   const companyInfo = await CompanyInfo.findById(req.params.id) as ICompanyInfo;
 
   if (!companyInfo) {
-    return res.status(404).json({ message: 'Company Info not found'});
-  };
+    return res.status(404).json({ message: 'Company Info not found' });
+  }
+
+  const updateField = (field: any, value: any) => (value !== undefined ? value : field);
+  //this is the allow null as a value
 
   Object.assign(companyInfo, {
+    company: {
+      name: updateField(companyInfo.company.name, req.body.company?.name),
+      logoImage: updateField(companyInfo.company.logoImage, req.body.company?.logoImage),
+    },
     home: {
       valueProposition: {
-        proposition: req.body.valueProposition?.proposition || companyInfo.home.valueProposition.proposition,
-        callToAction: req.body.valueProposition?.callToAction || companyInfo.home.valueProposition.callToAction
+        proposition: updateField(
+          companyInfo.home.valueProposition.proposition,
+          req.body.home?.valueProposition?.proposition
+        ),
+        callToAction: updateField(
+          companyInfo.home.valueProposition.callToAction,
+          req.body.home?.valueProposition?.callToAction
+        ),
       },
       customerSection: {
-        title: req.body.customerSection?.title || companyInfo.home.customerSection.title,
-        description: req.body.customerSection?.description || companyInfo.home.customerSection.description
-      }
+        title: updateField(companyInfo.home.customerSection.title, req.body.home?.customerSection?.title),
+        description: updateField(companyInfo.home.customerSection.description, req.body.home?.customerSection?.description),
+      },
     },
     about: {
-      title: req.body.about?.title || companyInfo.about.title,
-      description: req.body.about?.description || companyInfo.about.description,
-      image: req.body.about?.image || companyInfo.about.image
+      title: updateField(companyInfo.about.title, req.body.about?.title),
+      description: updateField(companyInfo.about.description, req.body.about?.description),
+      image: updateField(companyInfo.about.image, req.body.about?.image),
     },
     services: {
-      title: req.body.services?.title || companyInfo.services.title,
-      description: req.body.services?.description || companyInfo.services.description
+      title: updateField(companyInfo.services.title, req.body.services?.title),
+      description: updateField(companyInfo.services.description, req.body.services?.description),
     },
     contactUs: {
-      title: req.body.contactUs?.title || companyInfo.contactUs.title,
-      description: req.body.contactUs?.description || companyInfo.contactUs.description,
+      title: updateField(companyInfo.contactUs.title, req.body.contactUs?.title),
+      description: updateField(companyInfo.contactUs.description, req.body.contactUs?.description),
+      image: updateField(companyInfo.contactUs.image, req.body.contactUs?.image),
       email: {
-        contact: req.body.contactUs?.email?.contact || companyInfo.contactUs.email.contact,
-        website: req.body.contactUs?.email?.website || companyInfo.contactUs.email.website
+        contact: updateField(companyInfo.contactUs.email.contact, req.body.contactUs?.email?.contact),
+        website: updateField(companyInfo.contactUs.email.website, req.body.contactUs?.email?.website),
       },
       phone: {
-        countryCode: req.body.contactUs?.phone?.countryCode || companyInfo.contactUs.phone.countryCode,
-        phone: req.body.contactUs?.phone?.phone || companyInfo.contactUs.phone.phone,
-        fax: req.body.contactUs?.phone?.fax || companyInfo.contactUs.phone.fax
+        countryCode: updateField(companyInfo.contactUs.phone.countryCode, req.body.contactUs?.phone?.countryCode),
+        phone: updateField(companyInfo.contactUs.phone.phone, req.body.contactUs?.phone?.phone),
+        fax: updateField(companyInfo.contactUs.phone.fax, req.body.contactUs?.phone?.fax),
       },
       address: {
-        address1: req.body.contactUs?.address?.address1 || companyInfo.contactUs.address.address1,
-        address2: req.body.contactUs?.address?.address2 || companyInfo.contactUs.address.address2,
-        area: req.body.contactUs?.address?.area || companyInfo.contactUs.address.area,
-        city: req.body.contactUs?.address?.city || companyInfo.contactUs.address.city,
-        country: req.body.contactUs?.address?.country || companyInfo.contactUs.address.country,
-        postalCode: req.body.contactUs?.address?.postalCode || companyInfo.contactUs.address.postalCode,
-        fullAddress: req.body.contactUs?.address?.fullAddress || companyInfo.contactUs.address.fullAddress
+        address1: updateField(companyInfo.contactUs.address.address1, req.body.contactUs?.address?.address1),
+        address2: updateField(companyInfo.contactUs.address.address2, req.body.contactUs?.address?.address2),
+        area: updateField(companyInfo.contactUs.address.area, req.body.contactUs?.address?.area),
+        city: updateField(companyInfo.contactUs.address.city, req.body.contactUs?.address?.city),
+        country: updateField(companyInfo.contactUs.address.country, req.body.contactUs?.address?.country),
+        postalCode: updateField(companyInfo.contactUs.address.postalCode, req.body.contactUs?.address?.postalCode),
+        fullAddress: updateField(companyInfo.contactUs.address.fullAddress, req.body.contactUs?.address?.fullAddress),
       },
       socialMedia: {
-        linkedin: req.body.contactUs?.socialMedia?.linkedin || companyInfo.contactUs.socialMedia.linkedin,
-        facebook: req.body.contactUs?.socialMedia?.facebook || companyInfo.contactUs.socialMedia.facebook,
-        instagram: req.body.contactUs?.socialMedia?.instagram || companyInfo.contactUs.socialMedia.instagram,
-        twitter: req.body.contactUs?.socialMedia?.twitter || companyInfo.contactUs.socialMedia.twitter,
-        tiktok: req.body.contactUs?.socialMedia?.tiktok || companyInfo.contactUs.socialMedia.tiktok,
-        youtube: req.body.contactUs?.socialMedia?.youtube || companyInfo.contactUs.socialMedia.youtube,
-        amazon: req.body.contactUs?.socialMedia?.amazon || companyInfo.contactUs.socialMedia.amazon,
-        aliexpress: req.body.contactUs?.socialMedia?.aliexpress || companyInfo.contactUs.socialMedia.aliexpress
-      }
-    }
+        linkedin: updateField(companyInfo.contactUs.socialMedia.linkedin, req.body.contactUs?.socialMedia?.linkedin),
+        facebook: updateField(companyInfo.contactUs.socialMedia.facebook, req.body.contactUs?.socialMedia?.facebook),
+        instagram: updateField(companyInfo.contactUs.socialMedia.instagram, req.body.contactUs?.socialMedia?.instagram),
+        twitter: updateField(companyInfo.contactUs.socialMedia.twitter, req.body.contactUs?.socialMedia?.twitter),
+        tiktok: updateField(companyInfo.contactUs.socialMedia.tiktok, req.body.contactUs?.socialMedia?.tiktok),
+        youtube: updateField(companyInfo.contactUs.socialMedia.youtube, req.body.contactUs?.socialMedia?.youtube),
+        amazon: updateField(companyInfo.contactUs.socialMedia.amazon, req.body.contactUs?.socialMedia?.amazon),
+        aliexpress: updateField(companyInfo.contactUs.socialMedia.aliexpress, req.body.contactUs?.socialMedia?.aliexpress),
+      },
+    },
   });
-  
+
   const updatedCompanyInfo = await companyInfo.save();
   res.status(200).json(updatedCompanyInfo);
 });
+
+
+// @desc Get users
+// @route GET /api/users
+// @access Private/Admin
+const getCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
+  const info = await CompanyInfo.find({});
+  return res.status(200).json(info);
+});
+
+
+// @desc Get company info by Id
+// @route GET /api/company-info/:id
+// @access Private/public
+const getCompanyInfoById = async (req: Request, res: Response) => {
+  const companyInfo = await CompanyInfo.findById(req.params.id);
+
+  if (companyInfo){
+      return res.status(200).json(companyInfo);
+  } else {
+    return res.status(404).json({ message: 'Company Info not found'});
+  };
+};
 
 
 // @desc Delete company info
@@ -176,8 +188,8 @@ const deleteCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
 
 export {
   createCompanyInfo,
-  getCompanyInfos,
-  getCompanyInfoById,
   updateCompanyInfo,
+  getCompanyInfo,
+  getCompanyInfoById,
   deleteCompanyInfo
 };

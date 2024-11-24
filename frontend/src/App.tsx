@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom"; // outlet for the react router
+import { Outlet } from "react-router-dom"; // outlet for the react router
 import { ToastContainer } from 'react-toastify';
 import { IndDB } from "./general/utils/indexedDB";
 import { useRefresh, useLogout } from "./features/auth/state/hooks";
-import { useSelectCompanyInfo, useCreateCompanyInfo } from "./features/company/companyInfo/state/hooks";
+import { useGetCompanyInfo } from "./features/company/companyInfo/state/hooks";
 import Header from "./general/components/Header";
 import Footer from "./general/components/Footer";
 import './App.css'
@@ -12,11 +12,10 @@ import './App.css'
 
 function App() {
   const indexedDB = IndDB.instance;
-  const navigate = useNavigate();
   const refreshHook = useRefresh();
   const logoutHook = useLogout();
-  const companyInfo = useSelectCompanyInfo();
-  const createCompanyInfoHook = useCreateCompanyInfo();
+  const getCompanyInfoHook = useGetCompanyInfo();
+  
 
   useEffect(()=>{
     const getRefreshTokenAndLogin = async ()=>{
@@ -29,23 +28,18 @@ function App() {
         await indexedDB.saveDataToDB('token', null);
         await logoutHook();
       };
-      // navigate('/');
     };
 
-    const getOrCreateCompanyInfo = async()=>{
-      if(!companyInfo.home){
-        const companyData = await createCompanyInfoHook();
-        console.log('company data', companyData)
-        return companyData.payload;
-      } else{
-        return;
-      }
+    const getCompanyInfo = async()=>{
+      const companyInfo = await getCompanyInfoHook();
+      console.log(companyInfo.payload)
     };
 
-    getRefreshTokenAndLogin()
-    getOrCreateCompanyInfo()
+    getRefreshTokenAndLogin();
+    getCompanyInfo();
+   
 
-  },[ refreshHook, logoutHook, navigate, createCompanyInfoHook, companyInfo.home]);
+  },[ refreshHook, logoutHook, getCompanyInfoHook]);
 
   return (
     <>

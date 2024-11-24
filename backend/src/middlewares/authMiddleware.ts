@@ -10,15 +10,20 @@ declare module 'express' {
 
 //Protect routes for registered users
 const protect = async (req: Request, res: Response, next: NextFunction) => {
-
-    const accessTokenName = process.env.ACCESS_TOKEN_NAME!
-
-    //Read the JWT from the cookie
+    const accessTokenName = process.env.ACCESS_TOKEN_NAME!;
     const accessToken = req.cookies[accessTokenName];
-    const jwtSecretAccess = process.env.JWT_SECRET_ACCESS!
-
+    const jwtSecretAccess = process.env.JWT_SECRET_ACCESS!;
+  
+    // console.log('Access token from cookie:', accessToken); 
+  
+    if (!accessToken) {
+      return res.status(401).json({ message: 'Access token missing' });
+    }
+  
     verifyAccessOrRefreshToken(req, res, next, accessToken, jwtSecretAccess);
-};
+    console.log('access token from cookie 2', accessToken);
+  };
+  
 
 
 //for refresh access for registered users - so they will stay login for many days
@@ -30,7 +35,7 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies[refreshTokenName];
     const jwtSecretRefresh = process.env.JWT_SECRET_REFRESH!
 
-    console.log('refreshToken backend', refreshToken)
+    // console.log('refreshToken backend', refreshToken)
 
     verifyAccessOrRefreshToken(req, res, next, refreshToken, jwtSecretRefresh);
    
@@ -39,28 +44,25 @@ const refresh = async (req: Request, res: Response, next: NextFunction) => {
 
 const employee = (req: Request, res: Response, next: NextFunction) => {
     if(req.user && req.user.isEmployee) {
-        next();
+       return next();
     } else {
-        res.status(401);
-        throw new Error('Not authorized as admin');
+        return res.status(401).json({ message: 'Not authorized as employee'});
     };
 };
 
 const admin = (req: Request, res: Response, next: NextFunction) => {
     if(req.user && req.user.isAdmin) {
-        next();
+        return next();
     } else {
-        res.status(401);
-        throw new Error('Not authorized as admin');
+        return res.status(401).json({ message: 'Not authorized as admin'});
     };
 };
 
 const superAdmin = (req: Request, res: Response, next: NextFunction) => {
     if(req.user && req.user.isSuperAdmin) {
-        next();
+        return next();
     } else {
-        res.status(401);
-        throw new Error('Not authorized as admin');
+        return res.status(401).json({ message: 'Not authorized as super admin'});
     };
 };
 

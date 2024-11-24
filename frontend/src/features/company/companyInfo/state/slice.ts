@@ -17,55 +17,56 @@ export enum EnumStatus {
 }
 
 export type CompanyInfoState = {
+ _id: string; 
  home: {
     valueProposition: {
-      proposition: string;
-      callToAction: string;
+      proposition: string | null;
+      callToAction: string | null;
     };
     customerSection: {
-      title: string;
-      description: string;
+      title: string | null;
+      description: string | null;
     };
   };
   about: {
-    title: string;
-    description: string;
-    image: string;
+    title: string | null;
+    description: string | null;
+    image: string | null;
   };
   services: {
-    title: string;
-    description: string;
+    title: string | null;
+    description: string | null;
   };
   contactUs: {
-    title: string;
-    description: string;
+    title: string | null;
+    description: string | null;
     email: {
-      contact: string;
-      website: string;
+      contact: string | null;
+      website: string | null;
     };
     phone: {
-      countryCode: string;
-      phone: string;
-      fax: string;
+      countryCode: string | null;
+      phone: string | null;
+      fax: string | null;
     };
     address: {
-      address1: string;
-      address2: string;
-      area: string;
-      city: string;
-      country: string;
-      postalCode: string;
-      fullAddress: string;
+      address1: string | null;
+      address2: string | null;
+      area: string | null;
+      city: string | null;
+      country: string | null;
+      postalCode: string | null;
+      fullAddress: string | null;
     };
     socialMedia: {
-      linkedin: string;
-      facebook: string;
-      instagram: string;
-      twitter: string;
-      tiktok: string;
-      youtube: string;
-      amazon: string;
-      aliexpress: string;
+      linkedin: string | null;
+      facebook: string | null;
+      instagram: string | null;
+      twitter: string | null;
+      tiktok: string | null;
+      youtube: string | null;
+      amazon: string | null;
+      aliexpress: string | null;
     };
   };
 };
@@ -94,32 +95,38 @@ export const createCompanyInfo = createAsyncThunk(
 );
 //withCredentials: true - this allows us to get the cookie
 
-// export const getCompanyInfos = createAsyncThunk('companyInfo/getAll', async () => {
-//   const response = await axios.get(`${BASE_URL}/companyInfo`, {
-//     withCredentials: true,
-//   });
 
-//   return response.data;
-// });
+export const getCompanyInfo = createAsyncThunk(
+  'companyInfo/getCompanyInfo',
+  async () => {
+    const response = await axios.get(
+      `${BASE_URL}/companyInfo`,
+      { withCredentials: true }
+    );
 
-
-// export const getCompanyInfoById = createAsyncThunk(
-//   'user/getCompanyInfoById',
-//   async ({id}: {id: string}) => {
-//     const response = await axios.get(
-//       `${BASE_URL}/companyInfo/${id}`,
-//     );
-//     return [response.data];
-//   }
-// );
+    return response.data[0];
+  }
+);
 
 
 export const updateCompanyInfo = createAsyncThunk(
   'user/updateCompanyInfo',
-  async ({ id, data }: { id: string; data: CompanyInfoState}) => {
+  async ({ id, data }: { id: string; data: Partial<CompanyInfoState> }) => {
     const response = await axios.put(
       `${BASE_URL}/companyInfo/${id}`,
-      data
+      data,
+      { withCredentials: true }
+    );
+    return response.data;
+  }
+);
+
+export const getCompanyInfoById = createAsyncThunk(
+  'user/getCompanyInfoById',
+  async ({id}: {id: string}) => {
+    const response = await axios.get(
+      `${BASE_URL}/companyInfo/${id}`,
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -130,6 +137,7 @@ export const deleteCompanyInfo = createAsyncThunk(
   async ({id}: {id: string}) => {
     const response = await axios.delete(
       `${BASE_URL}/companyInfo/${id}`,
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -152,6 +160,13 @@ const companyInfoSlice = createSlice({
       .addCase(createCompanyInfo.rejected, (state) => {
         state.status = EnumStatus.Fail;
       })
+      .addCase(getCompanyInfo.pending, (state) => {
+        state.status = EnumStatus.Loading;
+      })
+      .addCase(getCompanyInfo.fulfilled, (state, action: PayloadAction<CompanyInfoState>) => {
+        state.status = EnumStatus.Success;
+        state.infos = action.payload;
+      })
       .addCase(updateCompanyInfo.pending, (state) => {
         state.status = EnumStatus.Loading;
       })
@@ -160,6 +175,16 @@ const companyInfoSlice = createSlice({
         state.infos = action.payload;
       })
       .addCase(updateCompanyInfo.rejected, (state) => {
+        state.status = EnumStatus.Fail;
+      })
+      .addCase(getCompanyInfoById.pending, (state) => {
+        state.status = EnumStatus.Loading;
+      })
+      .addCase(getCompanyInfoById.fulfilled, (state, action: PayloadAction<CompanyInfoState>) => {
+        state.status = EnumStatus.Success;
+        state.infos = action.payload;
+      })
+      .addCase(getCompanyInfoById.rejected, (state) => {
         state.status = EnumStatus.Fail;
       })
       .addCase(deleteCompanyInfo.fulfilled, (state) => {

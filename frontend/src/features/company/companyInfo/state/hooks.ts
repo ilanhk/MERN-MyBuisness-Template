@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../../app/store";
-import { CompanyInfoState, updateCompanyInfo, deleteCompanyInfo, createCompanyInfo } from "./slice";
+import { CompanyInfoState, updateCompanyInfo, deleteCompanyInfo, createCompanyInfo, getCompanyInfoById, getCompanyInfo } from "./slice";
 import { selectCompanyInfo, selectCompanyInfoStatus } from "./selectors";
 
 //get company info
@@ -27,35 +27,35 @@ export const useCreateCompanyInfo = () => {
 };
 
 
-// // get company infos
-// export const useGetCompanyInfo = () => {
-//   const dispatch = useDispatch<AppDispatch>();
-//   return useCallback(
-//     () => {
-//       return dispatch(getCompanyInfos());
-//     },
-//     [dispatch]
-//   );
-// };
+// get company info
+export const useGetCompanyInfo = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    () => {
+      return dispatch(getCompanyInfo());
+    },
+    [dispatch]
+  );
+};
 
 
-// // get company info by id
-// export const useGetCompanyInfoById = () => {
-//   const dispatch = useDispatch<AppDispatch>();
-//   return useCallback(
-//     (id: string) => {
-//       return dispatch(getCompanyInfoById({id}));
-//     },
-//     [dispatch]
-//   );
-// };
+// get company info by id
+export const useGetCompanyInfoById = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    (id: string) => {
+      return dispatch(getCompanyInfoById({id}));
+    },
+    [dispatch]
+  );
+};
 
 
 // update company info
 export const useUpdateCompanyInfo = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
-    (id: string, data: CompanyInfoState) => {
+    (id: string, data: Partial<CompanyInfoState>) => {
       return dispatch(updateCompanyInfo({id, data}));
     },
     [dispatch]

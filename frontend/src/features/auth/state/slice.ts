@@ -23,6 +23,8 @@ export type AuthState = {
   fullName: string;
   email: string;
   isEmployee: string;
+  isAdmin: boolean;
+  IsSuperAdmin: boolean;
   inEmailList: boolean;
   accessToken: string | null;
   twoFaSecret: string | null;

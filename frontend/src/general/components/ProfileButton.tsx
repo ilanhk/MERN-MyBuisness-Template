@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
 import { UpperCaseInitials } from '../utils/initials';
 import { IndDB } from '../utils/indexedDB';
 import '../css/profileButton.css';
@@ -21,7 +21,12 @@ const ProfileButton = () => {
   };
 
   return (
-    <Button variant="contained" className="profile-button">
+    <Fab 
+      size="large" 
+      color="secondary" 
+      aria-label="profile" 
+      className="profile-button"
+      >
       {userInitials}
       <ul className="dropdown-menu">
         <li className="dropdown-item">
@@ -31,7 +36,7 @@ const ProfileButton = () => {
           Logout
         </li>
       </ul>
-    </Button>
+    </Fab>
   );
 };
 

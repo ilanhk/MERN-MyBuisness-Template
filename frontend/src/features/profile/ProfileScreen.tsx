@@ -11,9 +11,9 @@ const ProfileScreen = () => {
     <div className="profile-container">
       <div className="profile-menu">
         <h3>Settings</h3>
-        <p onClick={() => setScreen('profile')}>profile</p>
-        <p onClick={() => setScreen('security')}>security</p>
-        <p onClick={() => setScreen('favorites')}>favorites</p>
+        <p onClick={() => setScreen('profile')}>Profile</p>
+        <p onClick={() => setScreen('security')}>Security and Data Privacy</p>
+        <p onClick={() => setScreen('favorites')}>Favorites</p>
       </div>
       { screen === 'profile' ? (<ProfileInfo />) : screen === 'security' ? (<ProfileSecurity />) : (<ProfileFavorites />)}
     </div>

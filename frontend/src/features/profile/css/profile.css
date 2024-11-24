@@ -1,4 +1,4 @@
-/* @import '../../../general/css/globalVariables.css'; */
+@import '../../../general/css/globalVariables.css';
 
 .profile-container{
   display: flex;
@@ -7,23 +7,28 @@
   height: 100%;
 }
 
-.h3{color: pink;}
+
 
 .profile-menu{
-  width: 30%;
+  width: 10%;
   height: 100%;
-  margin-right: 5%; 
+  margin-right: 15%;
+  padding: 1%;
+  background-color: rgb(198, 227, 243);
+  
 }
 
 .profile-section{
   display: flex;
   align-items: center;
+  
 }
 
 .profile-info-container{
   display: flex;
   flex-direction: column;
   align-items: center;
+  
 }
 
 .profile-info-inner-container{

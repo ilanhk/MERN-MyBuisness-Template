@@ -9,6 +9,7 @@ export interface IProduct extends Document {
   supplierPrice: number;
   price: number;
   isChosen: boolean;
+  //affiliate link
 };
 
 const productSchema: Schema = new mongoose.Schema({

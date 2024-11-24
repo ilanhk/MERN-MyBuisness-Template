@@ -1,0 +1,56 @@
+@import '../../../../general/css/globalVariables.css';
+
+.ci-form-container{
+  width: 45%;
+  color: var(--dark-blue-font);
+  font-family: var(--company-font-family);
+  margin: 1%;
+  margin-bottom: 5%;
+}
+
+.ci-formScreen-title{
+  font-size: 2.3rem;
+}
+
+.ci-form{
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding-left: 3%;
+  padding-top: 1%;
+}
+
+.ci-form-title{
+  font-size: 1.3rem;
+}
+
+.ci-form-with-button-and-message-section{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  
+}
+
+.ci-form-input-section{
+  margin-bottom: 10%;
+  width: 60%;
+}
+
+.ci-label{
+  margin-right: 2%;
+}
+
+.ci-form-input{
+  margin-top: 7%;
+}
+
+.ci-button-and-message-section{
+  width: 40%;
+  margin-right: 2%;
+  
+  
+}
+
+.ci-form-button{
+  margin-bottom: 5%;
+}
+
+

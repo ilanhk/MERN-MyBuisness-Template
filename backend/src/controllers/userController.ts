@@ -66,7 +66,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 const refreshUser = (req: Request, res: Response) => {
   const user: IUser | undefined = req.user;
   if (user) {
-    console.log('user to refresh: ', user);
+    // console.log('user to refresh: ', user);
 
     const userId = user._id + '';
     const { accessToken, refreshToken } = getTokens(res, userId);
