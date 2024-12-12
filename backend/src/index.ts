@@ -53,15 +53,13 @@ app.use('/api/upload', uploadRoutes);
 //job routes
 app.use('/api/jobs', jobRoutes);
 
-//applicants routes
+//applicants routes ??
 
 //companyInfo routes
 app.use('/api/companyInfo', comapanyInfoRoutes);
 
 //services routes
 app.use('/api/services', serviceRoutes);
-
-//applicants routes
 
 
 //employee tasks routes

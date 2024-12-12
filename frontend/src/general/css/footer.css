@@ -1,8 +1,5 @@
 @import '../css/globalVariables.css';
 
-:root {
-  --linkedin-color: #0A66C2;
-}
 
 .business-footer{
   display: flex;
@@ -19,10 +16,6 @@
   align-items: center; /* Vertically centers the elements */
 }
 
-.footer-icon {
-  font-size: 2.5rem; /* Adjust the size as needed (e.g., 2rem, 3rem, etc.) */
-  color: var(--linkedin-color);
-}
 
 .footer-menu{
   display: flex;

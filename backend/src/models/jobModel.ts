@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IJob extends Document {
   name: string;
-  category: string;
+  department: string;
   description: {
     position: string,
     yourRole: string,
@@ -22,7 +22,7 @@ const jobSchema: Schema = new mongoose.Schema({
         type: String, 
         required: true,
     },
-    category: {
+    department: {
         type: String, 
         required: true,
     },

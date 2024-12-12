@@ -12,6 +12,7 @@ const OvalButton = ({ path, text}: OvalButtonProps) => {
     <Link to={path}>
       <Button 
         variant="contained"
+        size="large"
         className='oval-button'
         >
           {text}

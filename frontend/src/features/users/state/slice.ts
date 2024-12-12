@@ -5,6 +5,7 @@ import {
   ActionReducerMapBuilder,
 } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { RootState } from '../../../app/store';
 
 const BASE_URL: string = import.meta.env.VITE_APP_BASE_URL!;
 
@@ -61,7 +62,7 @@ export const getUserById = createAsyncThunk(
 
 export const updateUser = createAsyncThunk(
   'user/updateUser',
-  async ({ id, data }: { id: string; data: UserState }) => {
+  async ({ id, data }: { id: string; data: Partial<UserState> }) => {
     const response = await axios.put(
       `${BASE_URL}/users/${id}`,
       data
@@ -130,5 +131,7 @@ const userSlice = createSlice({
       })
   },
 });
+
+export const usersState = (state: RootState) => state.userReducer;
 
 export default userSlice.reducer;

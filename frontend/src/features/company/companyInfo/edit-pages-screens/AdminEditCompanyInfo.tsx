@@ -9,6 +9,8 @@ import getReduxStatus from "../../../../general/utils/getReduxStatus";
 import CIFormButton from "../components/CIFormButton";
 import Loader from "../../../../general/components/Loader";
 import FormMessage from "../../../../general/components/FormMessage";
+import CompanyNameLogoForm from "../components/companyNameLogoForm";
+
 
 
 
@@ -58,10 +60,10 @@ const AdminEditCompanyInfo = () => {
   };
 
   return (
-    <div className="settings container">
-      <h2>Edit Company Information</h2>
-      <div className="add-or-reset-ci-section">
-        <h3>Add or Reset Company Information:</h3>
+    <div className="ci-form-container">
+      <h2 className="ci-formScreen-title">Edit Company Information</h2>
+      <div className="add-reset-form">
+        <h3 className="ci-form-title">Add or Reset Company Information:</h3>
         <CIFormButton
           text={isLoading ? "Processing..." : "Add/Reset"}
           color="primary"
@@ -79,17 +81,9 @@ const AdminEditCompanyInfo = () => {
         )}
       </div>
 
-      <div className="update-company-name-and-logo">
-        <h3>Update Company Name and Logo:</h3>
-      </div>
-
-      <div className="update-company-contactInfo">
-        <h3>Update Company contact Information:</h3>
-      </div>
-
-      <div className="update-company-name-and-logo">
-        <h3>Update the Company Name and Logo:</h3>
-      </div>
+      <CompanyNameLogoForm />
+     
+      
     </div>
   );
 };

@@ -74,7 +74,8 @@ const updateService = async (req: Request, res: Response) => {
 
   service.name = req.body.name || service.name;
   service.image = req.body.image || service.image;
-  service.description = req.body.description || service.description; 
+  service.description = req.body.description || service.description;
+  service.isChosen = req.body.isChosen || service.isChosen; 
   
   const updatedService = await service.save();
   res.status(200).json(updatedService);

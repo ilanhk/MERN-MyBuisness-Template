@@ -4,11 +4,12 @@ export interface ICompanyInfo extends Document {
   company: {
     name: string;
     logoImage: string;
-  }
+  };
   home: {
     valueProposition: {
       proposition: string;
       callToAction: string;
+      image: string;
     };
     customerSection: {
       title: string;
@@ -73,6 +74,11 @@ const companyInfoSchema: Schema = new mongoose.Schema(
           default: null 
         },
         callToAction: { 
+          type: String, 
+          required: false,
+          default: null
+        },
+        image: { 
           type: String, 
           required: false,
           default: null

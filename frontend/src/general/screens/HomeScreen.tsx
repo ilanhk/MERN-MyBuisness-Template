@@ -14,17 +14,7 @@ const HomeScreen = () => {
       <h3>Call to action button</h3>
       <h3>Call to action button</h3>
       <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
+     
 
     </div>
   )

@@ -1,15 +1,7 @@
-import { 
-  FaLinkedin, 
-  FaFacebook, 
-  FaInstagram, 
-  FaXTwitter, 
-  FaTiktok, 
-  FaYoutube, 
-  FaAmazon, 
-  FaAliexpress 
-} from 'react-icons/fa';
+
 import '../css/footer.css';
 import CompanyLogo from './CompanyLogo';
+import SocialMediaSection from './SocialMediaSection';
 
 
 interface FooterProps {
@@ -21,9 +13,7 @@ const Footer: React.FC<FooterProps> = ({ year }) => {
     <footer className="business-footer">
       <div className='footer-logo-and-socials'>
         <CompanyLogo />
-        <a href="https://www.linkedin.com/in/ilan-lieberman-9a1043132/" target="_blank" rel="noopener noreferrer">
-          <FaLinkedin className='footer-icon' />
-        </a>
+        <SocialMediaSection />
       </div>
       <div className='footer-menu'>
         <h4>Products </h4>

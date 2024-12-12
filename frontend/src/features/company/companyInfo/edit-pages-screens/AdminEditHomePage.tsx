@@ -21,15 +21,13 @@ const AdminEditHomePage = () => {
   // Use state variables to manage form inputs
   const [proposition, setProposition] = useState<string | null>(valueProposition.proposition || '');
   const [callToAction, setCallToAction] = useState<string | null>(valueProposition.callToAction || '');
+  const [propoImageURL, setPropoImageURL] = useState<string | null>(valueProposition.image || '');
   const [isError, setIsError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setisSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    
-  
 
     // Use state directly for form data
     const dataToUpdate = {
@@ -37,21 +35,21 @@ const AdminEditHomePage = () => {
         valueProposition: {
           proposition: proposition || null, // Ensure null for empty fields
           callToAction: callToAction || null,
+          image: propoImageURL || null,
         },
         customerSection: homeInfo.customerSection || {}, // Preserve existing data or default to empty
       },
     };
 
-    
-
     try {
-      setisSuccess(false);
+      setIsSuccess(false);
       setIsLoading(true); 
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
+      console.log(update.type)
       const updateReduxStatus = getReduxStatus(update.type);
 
       if(updateReduxStatus === 'fulfilled'){
-        setisSuccess(true)
+        setIsSuccess(true)
         console.log("Company Info on Homepage Updated!!");
       }
 
@@ -66,7 +64,7 @@ const AdminEditHomePage = () => {
       }
     } finally {
       setIsLoading(false);
-    }
+    };
 
   };
 

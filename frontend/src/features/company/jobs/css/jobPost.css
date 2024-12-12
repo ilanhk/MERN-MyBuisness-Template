@@ -1,0 +1,12 @@
+@import '../../../../general/css/globalVariables.css';
+
+.jobPost{
+  display: flex;
+  flex-direction: row;
+}
+
+.jobName{}
+
+.jobType{}
+
+.joblocationAndTime{}

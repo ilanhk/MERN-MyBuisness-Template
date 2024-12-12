@@ -4,6 +4,7 @@ export interface IService extends Document {
   name: string;
   image: string;
   description: string;
+  isChosen: boolean;
 };
 
 const serviceSchema: Schema = new mongoose.Schema({
@@ -20,6 +21,12 @@ const serviceSchema: Schema = new mongoose.Schema({
           required: true,
 
     },
+    isChosen: {
+        type: Boolean, 
+        required: false,
+        default: false,
+
+  },
 }, {
     timestamps: true,
 });

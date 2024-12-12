@@ -17,7 +17,8 @@ const createCompanyInfo = async (req: Request, res: Response) => {
     home: {
       valueProposition: {
         proposition: 'Our value proposition goes here',
-        callToAction: 'Get Started with Us'
+        callToAction: 'Get Started with Us',
+        image: 'https://paulcollege.unh.edu/sites/default/files/styles/landscape_480x260/public/landing-page/header-image/2018/marketing-dept-tom-gruen-paul-college1920x475.jpg?h=2a536532&itok=HXpy1_Cd'
       },
       customerSection: {
         title: 'Our Customers',
@@ -94,6 +95,10 @@ const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
           companyInfo.home.valueProposition.callToAction,
           req.body.home?.valueProposition?.callToAction
         ),
+        image: updateField(
+          companyInfo.home.valueProposition.image,
+          req.body.home?.valueProposition?.image
+        )
       },
       customerSection: {
         title: updateField(companyInfo.home.customerSection.title, req.body.home?.customerSection?.title),

@@ -1,0 +1,58 @@
+@import './globalVariables.css';
+
+:root{
+  --footer-icons-font-size: 3rem;
+  --contact-icons-font-size: 3.5rem;
+  --linkedin-color: #0A66C2;
+  --facebook-color: #1877F2;
+  --instagram-color: #E4405F;
+  --twitter-color: #000000;
+  --ticktok-color: #25F4EE;
+  --youtube-color: #FF0000;
+  --amazon-color: #FF9900;
+  --aliexpress-color: #FF5722;
+}
+
+.social-media-section{
+  
+}
+
+
+.icon{
+  font-size: var(--footer-icons-font-size);
+  margin: 1%
+}
+
+.icon-linkedin {
+  color: var(--linkedin-color);
+}
+
+.icon-facebook{
+  color: var(--facebook-color);
+}
+
+.icon-instagram{
+  color: var(--instagram-color);
+}
+
+.icon-twitter{
+  color: var(--twitter-color);
+}
+
+.icon-ticktok{
+  color: var(--ticktok-color);
+}
+
+.icon-youtube{
+  color: var(--youtube-color);
+}
+
+.icon-amazon{
+  color: var(--amazon-color);
+}
+
+.icon-aliexpress{
+  color: var(--aliexpress-color);
+
+}
+

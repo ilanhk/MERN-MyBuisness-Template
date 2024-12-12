@@ -15,7 +15,7 @@ declare module 'express' {
 const createJob = asyncHandler(async (req: Request, res: Response) => {
   const job = new Job({
       name: 'Sample name',
-      category: 'Sample category',
+      department: 'Sample category',
       description: {
         position: 'Sample position',
         yourRole: 'Sample your role',
@@ -31,7 +31,7 @@ const createJob = asyncHandler(async (req: Request, res: Response) => {
 
   
   const createdJob = await job.save();
-  res.status(201).json(createdJob); //201 means something was created
+  return res.status(201).json(createdJob); //201 means something was created
 });
 
 
@@ -40,7 +40,7 @@ const createJob = asyncHandler(async (req: Request, res: Response) => {
 // @access Public
 const getJobs = asyncHandler(async (req: Request, res: Response) => {
     const jobs = await Job.find({}); 
-    res.status(200).json(jobs); 
+    return res.status(200).json(jobs); 
 });
 
 
@@ -51,10 +51,9 @@ const getJobById = asyncHandler(async (req: Request, res: Response) => {
   const job = await Job.findById(req.params.id);
 
   if (job){
-      res.status(200).json(job);
+    return res.status(200).json(job);
   } else {
-      res.status(404);
-      throw new Error('Job not found');
+    return res.status(404).json({ message: 'Job not found'});
   };
  
 });
@@ -67,14 +66,13 @@ const updateJob = asyncHandler(async (req: Request, res: Response) => {
   const job = await Job.findById(req.params.id) as IJob;
 
   if (!job) {
-    res.status(404);
-    throw new Error('Job not found');
+    return res.status(404).json({ message: 'Job not found'});
   }
 
   // Update job fields in a concise manner
   Object.assign(job, {
     name: req.body.name || job.name,
-    category: req.body.category || job.category,
+    department: req.body.department || job.department,
     jobType: req.body.jobType || job.jobType,
     description: {
       position: req.body.description?.position || job.description.position,
@@ -89,7 +87,7 @@ const updateJob = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const updatedJob = await job.save();
-  res.status(200).json(updatedJob);
+  return res.status(200).json(updatedJob);
 });
 
 
@@ -101,10 +99,9 @@ const deleteJob = asyncHandler(async (req: Request, res: Response) => {
 
   if (job){
       await job.deleteOne({_id: job._id});
-      res.status(200).json({message: 'Job deleted successfuly'});
+      return res.status(200).json({message: 'Job deleted successfuly'});
   } else {
-      res.status(404);
-      throw new Error('Job not found');
+    return res.status(404).json({ message: 'Job not found'});
   };
 });
 
