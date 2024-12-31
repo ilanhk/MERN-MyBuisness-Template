@@ -1,56 +1,72 @@
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
-import {
-  useSelectCompanyInfo,
-} from '../state/hooks';
-import { useUpdateCompanyInfo } from '../state/hooks';
-import getReduxStatus from "../../../../general/utils/getReduxStatus";
+import {useSelectCompanyInfo, useSelectCompanyInfoStatus, useUpdateCompanyInfo } from '../state/hooks';
+import { EnumStatus } from '../state/slice';
+import { uploadSingleFile } from '../../../../general/utils/uploadsApis';
 import CIFormButton from '../components/CIFormButton';
+import UploadFile from '../../../../general/components/UploadFile';
 import FormMessage from "../../../../general/components/FormMessage";
 import Loader from "../../../../general/components/Loader";
 import '../css/companyInfoForms.css';
 
 const AdminEditHomePage = () => {
   const companyInfo = useSelectCompanyInfo();
+  const status = useSelectCompanyInfoStatus();
   const updateCompanyInfoHook = useUpdateCompanyInfo();
 
   // Safely access companyInfo.home
-  const homeInfo = companyInfo?.home || {};
-  const valueProposition = homeInfo?.valueProposition || {};
+  const homeInfo = companyInfo?.home;
+  const valueProposition = homeInfo?.valueProposition;
 
   // Use state variables to manage form inputs
   const [proposition, setProposition] = useState<string | null>(valueProposition.proposition || '');
   const [callToAction, setCallToAction] = useState<string | null>(valueProposition.callToAction || '');
-  const [propoImageURL, setPropoImageURL] = useState<string | null>(valueProposition.image || '');
+  const [file, setFile] = useState<File | null>(null);
   const [isError, setIsError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Use state directly for form data
+
+    let updatedImageURL = valueProposition.image; 
+  
+    if (file) {
+      try {
+        const data = await uploadSingleFile(file);
+        console.log('data from upload', data);
+        updatedImageURL = data; // Use the temporary variable
+      } catch (err) {
+        console.error('Error uploading file:', err);
+        setIsError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+        return; // Exit on error
+      }
+    }
+
     const dataToUpdate = {
       home: {
         valueProposition: {
           proposition: proposition || null, // Ensure null for empty fields
           callToAction: callToAction || null,
-          image: propoImageURL || null,
+          image: updatedImageURL || null, 
         },
-        customerSection: homeInfo.customerSection || {}, // Preserve existing data or default to empty
+        customerSection: homeInfo.customerSection, // Preserve existing data or default to empty
       },
     };
 
     try {
       setIsSuccess(false);
-      setIsLoading(true); 
+  
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
-      console.log(update.type)
-      const updateReduxStatus = getReduxStatus(update.type);
+      console.log('update homepage', update);
 
-      if(updateReduxStatus === 'fulfilled'){
-        setIsSuccess(true)
-        console.log("Company Info on Homepage Updated!!");
+      if (status === EnumStatus.Fail) {
+        throw new Error('This is not working');
+      }
+  
+      if (status === EnumStatus.Success) {
+        setIsSuccess(true);
+        console.log('Company info updated!');
       }
 
 
@@ -62,8 +78,6 @@ const AdminEditHomePage = () => {
           console.error("Unexpected error:", error);
           setIsError("An unexpected error occurred.");
       }
-    } finally {
-      setIsLoading(false);
     };
 
   };
@@ -99,18 +113,23 @@ const AdminEditHomePage = () => {
                   maxRows={4}
                 />
               </div>
+
+              <div className="ci-form-input">
+                <label htmlFor="aboutImage" className="ci-label">
+                  Proposition Image:
+                </label>
+                <UploadFile onFileChange={setFile} />
+              </div>
             </div>
             <div className='ci-button-and-message-section'>
               <CIFormButton text='Edit' color='primary'/>
-              {isError  && (
+              {status === EnumStatus.Fail  && (
                 <FormMessage message={isError} level="error"/>
               )}
               {isSuccess && (
-                <FormMessage message="Proposition and Call to Action Updated!" level="success"/>
+                <FormMessage message="Proposition Updated!" level="success"/>
               )}
-              { isLoading && (
-                <Loader size="small" />
-              )}
+              {status === EnumStatus.Loading && <Loader size="small" />}
             </div>
           </div>
         </form>

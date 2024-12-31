@@ -14,6 +14,10 @@ declare module 'express' {
 // @access Private/Admin
 const createCompanyInfo = async (req: Request, res: Response) => {
   const companyInfo: ICompanyInfo = new CompanyInfo({
+    company: {
+      name: 'MyBusiness',
+      logoImage: '',
+    },
     home: {
       valueProposition: {
         proposition: 'Our value proposition goes here',
@@ -72,6 +76,10 @@ const createCompanyInfo = async (req: Request, res: Response) => {
 // @access Private/Admin
 const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
   const companyInfo = await CompanyInfo.findById(req.params.id) as ICompanyInfo;
+
+  // console.log('requestBody1: ', req.body)
+  console.log('requestFile1: ', req.file)
+
 
   if (!companyInfo) {
     return res.status(404).json({ message: 'Company Info not found' });
@@ -196,5 +204,6 @@ export {
   updateCompanyInfo,
   getCompanyInfo,
   getCompanyInfoById,
-  deleteCompanyInfo
+  deleteCompanyInfo,
+  
 };

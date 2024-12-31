@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import {
   useSelectCompanyInfo,
+  useSelectCompanyInfoStatus,
   useUpdateCompanyInfo,
 } from '../state/hooks';
-import { uploadImage } from '../../../../general/utils/uploadsApis';
-import getReduxStatus from '../../../../general/utils/getReduxStatus';
+import { EnumStatus } from '../state/slice';
+import { uploadSingleFile } from '../../../../general/utils/uploadsApis';
+import UploadFile from '../../../../general/components/UploadFile';
 import CIFormButton from '../components/CIFormButton';
 import FormMessage from "../../../../general/components/FormMessage";
 import Loader from "../../../../general/components/Loader";
@@ -15,62 +15,57 @@ import Loader from "../../../../general/components/Loader";
 const CompanyNameLogoForm = () => {
   const companyInfo = useSelectCompanyInfo();
   const updateCompanyInfoHook = useUpdateCompanyInfo();
+  const status = useSelectCompanyInfoStatus();
 
-  const info = companyInfo?.company || {};
- 
+  const info = companyInfo?.company;
+  const { name, logoImage } = info;
   
 
-  const [companyName, setCompanyName] = useState<string | null>( info.name || '');
-  const [imgUrl, setImgUrl] = useState<string | null>( info.logoImage || '');
-  const [logoImageFile, setLogoImageFile] = useState<File | null>(null); // Handle File
+  const [companyName, setCompanyName] = useState<string | null>( name || '');
+  const [file, setFile] = useState<File | null>(null);
   
   const [isError, setIsError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      console.log('file: ', file)
-      setLogoImageFile(file);
-    }
-  };
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!logoImageFile) {
-      setIsError('Please select an image to upload.');
-      return;
+    let updatedImageURL = logoImage; 
+  
+    if (file) {
+      try {
+        const data = await uploadSingleFile(file);
+        console.log('data from upload', data);
+        updatedImageURL = data; // Use the temporary variable
+      } catch (err) {
+        console.error('Error uploading file:', err);
+        setIsError(err instanceof Error ? err.message : 'An unexpected error occurred.');
+        return; // Exit on error
+      }
+    };
+
+    const dataToUpdate = {
+      company: {
+        name: companyName || null,
+        logoImage: updatedImageURL || null,
+      },
     };
 
     try {
-      setIsLoading(true);
       setIsSuccess(false);
 
-      // Send image to API
-      const formData = new FormData();
-      formData.append('image', logoImageFile);
-
-      const image_url = await uploadImage(formData);
-       
-       console.log('from upload single image: ', image_url)
-
-      // Now submit other form data along with the uploaded image URL
-      const dataToUpdate = {
-        company: {
-          name: companyName || null,
-          logoImage: image_url // Set the uploaded image URL
-        },
-      };
-
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
-      const updateReduxStatus = getReduxStatus(update.type);
+      console.log('update company logo and name', update);
 
-      if (updateReduxStatus === 'fulfilled') {
-        setImgUrl(image_url); // Update the logo image URL in the state
+
+      if (status === EnumStatus.Fail) {
+        throw new Error('This is not working');
+      }
+  
+      if (status === EnumStatus.Success) {
         setIsSuccess(true);
-        console.log("Company Info on Homepage Updated!");
+        console.log('Company info updated!');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -80,9 +75,7 @@ const CompanyNameLogoForm = () => {
         console.error("Unexpected error:", error);
         setIsError("An unexpected error occurred.");
       }
-    } finally {
-      setIsLoading(false);
-    }
+    };
   };
 
   return (
@@ -106,33 +99,22 @@ const CompanyNameLogoForm = () => {
               </div>
 
               <div className="ci-form-input">
-                <label htmlFor="callToAction" className="ci-label">
-                  Upload Company Logo Image:
+                <label htmlFor="companyLogo" className="ci-label">
+                  Company Logo:
                 </label>
-                <Button
-                  component="label"
-                  role={undefined}
-                  variant="contained"
-                  tabIndex={-1}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ display: 'none' }} // Hide the input but keep it functional
-                  />
-                </Button>
-        
+                <UploadFile onFileChange={setFile} />
               </div>
             </div>
 
-            <div className="ci-button-and-message-section">
-              <CIFormButton text="Edit" color="primary" />
-              {isError && <FormMessage message={isError} level="error" />}
-              {isSuccess && <FormMessage message="Proposition and Call to Action Updated!" level="success" />}
-              {isLoading && <Loader size="small" />}
+            <div className='ci-button-and-message-section'>
+              <CIFormButton text='Edit' color='primary'/>
+              {status === EnumStatus.Fail  && (
+                <FormMessage message={isError} level="error"/>
+              )}
+              {isSuccess && (
+                <FormMessage message="Name and/or Logo Updated!" level="success"/>
+              )}
+              {status === EnumStatus.Loading && <Loader size="small" />}
             </div>
           </div>
         </form>

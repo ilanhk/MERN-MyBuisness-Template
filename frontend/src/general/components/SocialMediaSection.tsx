@@ -14,7 +14,7 @@ import '../css/socialMediaSection.css';
 
 const SocialMediaSection = () => {
   const companyInfo = useSelectCompanyInfo();
-  const socialMedia = companyInfo.contactUs.socialMedia;
+  const socialMedia = companyInfo?.contactUs?.socialMedia ?? {};
   const { linkedin, facebook, instagram, twitter, tiktok, youtube, amazon, aliexpress} = socialMedia;
 
   return (

@@ -16,6 +16,7 @@ const JobPost = ({job}: JobPostProps) => {
         <p className="jobType">{jobType}</p>
       </div>
       <div className="joblocationAndTime">
+        <p>job</p>
         <p>{location.city}, {location.country}</p>
         <p>{createdAt}</p>
       </div>

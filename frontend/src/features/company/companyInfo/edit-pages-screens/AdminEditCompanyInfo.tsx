@@ -9,16 +9,14 @@ import getReduxStatus from "../../../../general/utils/getReduxStatus";
 import CIFormButton from "../components/CIFormButton";
 import Loader from "../../../../general/components/Loader";
 import FormMessage from "../../../../general/components/FormMessage";
-import CompanyNameLogoForm from "../components/companyNameLogoForm";
-
-
+import CompanyNameLogoForm from "../components/CompanyNameLogoForm";
 
 
 const AdminEditCompanyInfo = () => {
   const createCompanyInfoHook = useCreateCompanyInfo();
   const deleteCompanyInfoHook = useDeleteCompanyInfo();
   const companyInfo = useSelectCompanyInfo();
-  const [isLoading, setIsLoading] = useState(false); // Local loading state for button interaction
+  const [isLoading, setIsLoading] = useState(false); 
   const [isError, setIsError] = useState('');
   const [isSuccess, setisSuccess] = useState(false);
 

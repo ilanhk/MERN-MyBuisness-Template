@@ -2,33 +2,23 @@ import axios from 'axios';
 
 const BASE_URL: string = import.meta.env.VITE_APP_BASE_URL!;
 
-export const uploadImage = async (imageData: FormData) => {
-  try {
-    const response = await axios.post(
-      `${BASE_URL}/image`,
-      imageData, // Body data goes here
-      {
-        withCredentials: true, // Request options
-      }
-    );
-    return response.data; // Handle response data here
-  } catch (error) {
-    console.error('Error uploading image:', error);
-    throw error;
-  }
-};
+export const uploadSingleFile = async (file: File) => {
+  if (!file) return alert("Please select a file");
 
+  const formData = new FormData();
+  formData.append("file", file);
+  console.log('file to be sent ', file)
 
-export const uploadProductsCSV = async () => {
   try {
-    const response = await axios.post(`${BASE_URL}/csv`, {
-      withCredentials: true,
+    const { data } = await axios.post(`${BASE_URL}/upload/file`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     });
-    return response.data; // Handle response data here
+
+    return data.fileUrl;
+
   } catch (error) {
-    console.error('Error uploading product csv:', error);
-    throw error;
-  }
+    console.error("Upload error", error);
+  } 
 };
 
 

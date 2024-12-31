@@ -1,28 +1,25 @@
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
-import {
-  useSelectCompanyInfo,
-} from '../state/hooks';
-import { useUpdateCompanyInfo } from '../state/hooks';
-import getReduxStatus from "../../../../general/utils/getReduxStatus";
+import { useSelectCompanyInfo, useSelectCompanyInfoStatus, useUpdateCompanyInfo } from '../state/hooks';
+import { EnumStatus } from '../state/slice';
 import CIFormButton from '../components/CIFormButton';
+import CompanyContactInfoForm from '../components/CompanyContactInfoForm';
+import CompanySocialMediaForm from '../components/CompanySocialMediaForm';
 import FormMessage from "../../../../general/components/FormMessage";
 import Loader from "../../../../general/components/Loader";
 import '../css/companyInfoForms.css';
 
 const AdminEditContactUs = () => {
   const companyInfo = useSelectCompanyInfo();
+  const status = useSelectCompanyInfoStatus();
   const updateCompanyInfoHook = useUpdateCompanyInfo();
 
-  const contactInfo = companyInfo?.contactUs || {};
+  const contactInfo = companyInfo?.contactUs;
   const { title, description, email, phone, address, socialMedia } =contactInfo;
 
-  // Use state variables to manage form inputs
   const [contactTitle, setContactTitle] = useState<string | null>(title || '');
   const [contactDescription, setContactDescription] = useState<string | null>(description || '');
-
   const [isError, setIsError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
 
@@ -43,15 +40,19 @@ const AdminEditContactUs = () => {
 
     try {
       setIsSuccess(false);
-      setIsLoading(true); 
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
-      const updateReduxStatus = getReduxStatus(update.type);
+      console.log('update contactus', update);
+  
+      if (status === EnumStatus.Fail) {
+        throw new Error('This is not working');
+      };
+  
+      if (status === EnumStatus.Success) {
+        setIsSuccess(true);
+        console.log('Company info updated!');
+      };
 
-      if(updateReduxStatus === 'fulfilled'){
-        setIsSuccess(true)
-        console.log("Company Info on Homepage Updated!!");
-      }
-
+    
 
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -61,11 +62,10 @@ const AdminEditContactUs = () => {
           console.error("Unexpected error:", error);
           setIsError("An unexpected error occurred.");
       }
-    } finally {
-      setIsLoading(false);
     };
 
   };
+  
   return (
     <div className="ci-form-container">
       <h2 className="ci-formScreen-title">Edit Contact Us page</h2>
@@ -98,21 +98,22 @@ const AdminEditContactUs = () => {
             </div>
             <div className='ci-button-and-message-section'>
               <CIFormButton text='Edit' color='primary'/>
-              {isError  && (
+              {status === EnumStatus.Fail  && (
                 <FormMessage message={isError} level="error"/>
               )}
               {isSuccess && (
-                <FormMessage message="Proposition and Call to Action Updated!" level="success"/>
+                <FormMessage message="About Us Updated!" level="success"/>
               )}
-              { isLoading && (
-                <Loader size="small" />
-              )}
+              {status === EnumStatus.Loading && <Loader size="small" />}
             </div>
           </div>
         </form>
-
-
+        
       )}
+
+      <CompanyContactInfoForm />
+
+      <CompanySocialMediaForm />
     </div>
   )
 }

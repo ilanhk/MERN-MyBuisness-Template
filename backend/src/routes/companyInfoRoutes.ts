@@ -5,10 +5,11 @@ import {
   updateCompanyInfo,
   getCompanyInfo,
   getCompanyInfoById,
-  deleteCompanyInfo 
+  deleteCompanyInfo,
 } from '../controllers/companyInfoController';
 import { protect, employee } from '../middlewares/authMiddleware';
 import checkObjectId from '../middlewares/checkObjectId';
+
 
 router.route('/').get(getCompanyInfo).post(createCompanyInfo);
 router

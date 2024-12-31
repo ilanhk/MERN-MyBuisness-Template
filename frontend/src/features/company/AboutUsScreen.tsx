@@ -7,6 +7,7 @@ const AboutUsScreen = () => {
 
   // Check if info exists before destructuring
   const { title, description, image } = info || {};
+  console.log('about image: ', image)
 
   return (
     <div className="about-us">

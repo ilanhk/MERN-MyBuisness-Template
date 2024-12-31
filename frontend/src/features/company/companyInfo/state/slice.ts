@@ -20,7 +20,7 @@ export type CompanyInfoState = {
   _id: string;
   company: {
     name: string | null;
-    logoImage: string | null;
+    logoImage: string | null; //need to save the file path of aws link or filepath of image in a local folder
   };
   home: {
     valueProposition: {
@@ -36,7 +36,7 @@ export type CompanyInfoState = {
   about: {
     title: string | null;
     description: string | null;
-    image: string | null;
+    image: string |null;
   };
   services: {
     title: string | null;
@@ -167,6 +167,8 @@ export const getCompanyInfo = createAsyncThunk(
     return response.data[0];
   }
 );
+
+
 
 export const updateCompanyInfo = createAsyncThunk(
   'user/updateCompanyInfo',

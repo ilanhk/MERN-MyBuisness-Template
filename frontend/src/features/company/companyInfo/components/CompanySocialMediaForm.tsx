@@ -2,9 +2,10 @@ import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import {
   useSelectCompanyInfo,
+  useSelectCompanyInfoStatus,
   useUpdateCompanyInfo,
 } from '../state/hooks';
-import getReduxStatus from '../../../../general/utils/getReduxStatus';
+import { EnumStatus } from '../state/slice';
 import CIFormButton from '../components/CIFormButton';
 import FormMessage from "../../../../general/components/FormMessage";
 import Loader from "../../../../general/components/Loader";
@@ -12,6 +13,7 @@ import Loader from "../../../../general/components/Loader";
 
 const CompanySocialMediaForm = () => {
   const companyInfo = useSelectCompanyInfo();
+  const status = useSelectCompanyInfoStatus();
   const updateCompanyInfoHook = useUpdateCompanyInfo();
   const socials = companyInfo?.contactUs?.socialMedia || {
   linkedin: '',
@@ -25,7 +27,6 @@ const CompanySocialMediaForm = () => {
 };
 
   const [isError, setIsError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const [linkedinLink, setLinkedinLink] = useState<string | null>( socials.linkedin || '');
@@ -70,14 +71,19 @@ const CompanySocialMediaForm = () => {
   
     try {
       setIsSuccess(false);
-      setIsLoading(true);
+
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
-      const updateReduxStatus = getReduxStatus(update.type);
+      console.log('update social media', update);
   
-      if (updateReduxStatus === "fulfilled") {
-        setIsSuccess(true);
-        console.log("Company Info on Homepage Updated!!");
+      if (status === EnumStatus.Fail) {
+        throw new Error('This is not working');
       }
+  
+      if (status === EnumStatus.Success) {
+        setIsSuccess(true);
+        console.log('Company info updated!');
+      }
+
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("Error updating company info:", error.message);
@@ -86,9 +92,7 @@ const CompanySocialMediaForm = () => {
         console.error("Unexpected error:", error);
         setIsError("An unexpected error occurred.");
       }
-    } finally {
-      setIsLoading(false);
-    }
+    };
   };
   
 
@@ -192,11 +196,15 @@ const CompanySocialMediaForm = () => {
             </div>
 
 
-            <div className="ci-button-and-message-section">
-              <CIFormButton text="Edit" color="primary" />
-              {isError && <FormMessage message={isError} level="error" />}
-              {isSuccess && <FormMessage message="Proposition and Call to Action Updated!" level="success" />}
-              {isLoading && <Loader size="small" />}
+            <div className='ci-button-and-message-section'>
+              <CIFormButton text='Edit' color='primary'/>
+              {status === EnumStatus.Fail  && (
+                <FormMessage message={isError} level="error"/>
+              )}
+              {isSuccess && (
+                <FormMessage message="Social Media Updated!" level="success"/>
+              )}
+              {status === EnumStatus.Loading && <Loader size="small" />}
             </div>
           </div>
         </form>
