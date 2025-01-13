@@ -4,6 +4,7 @@ import { useSelectAuth } from "../../../features/auth/state/hooks";
 
 const AdminRoute = () => {
   const auth = useSelectAuth();
+  console.log('is Admin auth: ', auth)
 
   return auth && auth.isAdmin ? <Outlet /> : <Navigate to='/login' replace />;
 };

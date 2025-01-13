@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
 import Service, { IService } from '../models/servicesModel';
+import redisClient from '../redis';
+import { getRedisWithId, getRedisAll } from '../utils/redisFunctions';
+
+const redis_expiry = 86400 //24hours in seconds
 
 declare module 'express' {
   interface Request {
@@ -26,6 +30,7 @@ const createService = async (req: Request, res: Response) => {
 
   if(service){
     const serviceId = service._id + ''
+    await redisClient.set(`service:${serviceId}`, JSON.stringify(service), { EX: redis_expiry });
     return res.status(201).json({
         _id: serviceId,
         name,
@@ -42,7 +47,7 @@ const createService = async (req: Request, res: Response) => {
 // @route GET /api/services
 // @access Public
 const getServices = async (req: Request, res: Response) => {
-    const services = await Service.find({}); 
+    const services: IService[] = await getRedisAll('services', Service, redis_expiry) 
     return res.status(200).json(services); 
 };
 
@@ -51,7 +56,8 @@ const getServices = async (req: Request, res: Response) => {
 // @route GET /api/services/:id
 // @access Private/Admin
 const getServiceById = (async (req: Request, res: Response) => {
-  const service = await Service.findById(req.params.id);
+  const serviceId = req.params.id;
+  const service = await getRedisWithId('service', serviceId, Service, redis_expiry);
 
   if (service){
       return res.status(200).json(service);
@@ -66,7 +72,8 @@ const getServiceById = (async (req: Request, res: Response) => {
 // @route PUT /api/services/:id
 // @access Private/Admin
 const updateService = async (req: Request, res: Response) => {
-  const service = await Service.findById(req.params.id);
+  const serviceId = req.params.id;
+  const service = await getRedisWithId('service', serviceId, Service, redis_expiry);
 
   if (!service) {
     return res.status(404).json({ message: 'Service not found'});
@@ -78,6 +85,7 @@ const updateService = async (req: Request, res: Response) => {
   service.isChosen = req.body.isChosen || service.isChosen; 
   
   const updatedService = await service.save();
+  await redisClient.set(`service:${serviceId}`, JSON.stringify(updateService), { EX: redis_expiry });
   res.status(200).json(updatedService);
 };
 
@@ -89,7 +97,10 @@ const deleteService = async (req: Request, res: Response) => {
   const service = await Service.findById(req.params.id);
 
   if (service){
-      await service.deleteOne({_id: service._id});
+      const serviceId = service._id;
+      await service.deleteOne({_id: service});
+      const keysToDelete: string[] = [`product:${serviceId}`, 'services'];
+      await redisClient.del(keysToDelete);
       return res.status(200).json({message: 'Service deleted successfuly'});
   } else {
     return res.status(404).json({ message: 'Service not found'});

@@ -1,0 +1,5 @@
+.admin-table-container {
+  height: 400px;
+  width: 100%;
+  border: 0; /* Remove border styling from DataGrid */
+}

@@ -31,7 +31,7 @@ router.route('/forgot-password').post(forgotPassword);
 
 router.route('/reset-password').post(resetPassword);
 
-router.route('/:id').delete(protect, superAdmin, deleteUser).get(getUserById).put(protect, admin, updateUser);
+router.route('/:id').delete(protect, superAdmin, deleteUser).get(protect, getUserById).put(protect, admin, updateUser);
 
 
 

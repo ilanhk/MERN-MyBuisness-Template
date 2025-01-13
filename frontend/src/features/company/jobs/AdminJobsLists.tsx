@@ -1,12 +1,35 @@
 import { useEffect, useState } from "react";
 import { useSelectJobs, useCreateJob, useGetJobs } from "./state/hooks";
+import { useNavigate } from "react-router-dom";
 import { JobState } from "./state/slice";
 import CIFormButton from "../companyInfo/components/CIFormButton";
+import AdminTable from "../companyInfo/components/AdminTable";
 import './css/adminJobsList.css';
+
+const columns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', width: 70 },
+  { field: 'firstName', headerName: 'First name', width: 130 },
+  { field: 'lastName', headerName: 'Last name', width: 130 },
+  {
+    field: 'age',
+    headerName: 'Age',
+    type: 'number',
+    width: 90,
+  },
+  {
+    field: 'fullName',
+    headerName: 'Full name',
+    description: 'This column has a value getter and is not sortable.',
+    sortable: false,
+    width: 160,
+    valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`,
+  },
+];
 
 
 
 const AdminJobsLists = () => {
+  const navigate = useNavigate();
   const jobsState = useSelectJobs();
   const createJobHook = useCreateJob();
   const getJobsHook = useGetJobs();
@@ -40,6 +63,7 @@ const AdminJobsLists = () => {
 
       <div>
         <h3>List of Current Jobs:</h3>
+        <AdminTable />
         {jobsState.length > 0 ? (
           jobsState.map((j, index) => {
             return <p key={j._id || index}>{j.name}</p>

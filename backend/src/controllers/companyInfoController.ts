@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import asyncHandler from '../middlewares/asyncHandler';
 import CompanyInfo, { ICompanyInfo} from '../models/companyInfoModel';
+import redisClient from '../redis';
+import { getRedisWithId } from '../utils/redisFunctions';
+
+const redis_expiry = 86400 //24hours in seconds
 
 declare module 'express' {
   interface Request {
@@ -75,11 +79,8 @@ const createCompanyInfo = async (req: Request, res: Response) => {
 // @route PUT /api/company-info/:id
 // @access Private/Admin
 const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
-  const companyInfo = await CompanyInfo.findById(req.params.id) as ICompanyInfo;
-
-  // console.log('requestBody1: ', req.body)
-  console.log('requestFile1: ', req.file)
-
+  const companyInfoId = req.params.id;
+  const companyInfo = await getRedisWithId('companyInfo', companyInfoId, CompanyInfo, redis_expiry);
 
   if (!companyInfo) {
     return res.status(404).json({ message: 'Company Info not found' });
@@ -158,6 +159,7 @@ const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const updatedCompanyInfo = await companyInfo.save();
+  await redisClient.set(`companyInfo:${companyInfoId}`, JSON.stringify(updatedCompanyInfo), { EX: redis_expiry });
   res.status(200).json(updatedCompanyInfo);
 });
 
@@ -175,7 +177,8 @@ const getCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
 // @route GET /api/company-info/:id
 // @access Private/public
 const getCompanyInfoById = async (req: Request, res: Response) => {
-  const companyInfo = await CompanyInfo.findById(req.params.id);
+  const companyInfoId = req.params.id;
+  const companyInfo = await getRedisWithId('companyInfo', companyInfoId, CompanyInfo, redis_expiry);
 
   if (companyInfo){
       return res.status(200).json(companyInfo);
@@ -192,7 +195,9 @@ const deleteCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
   const companyInfo = await CompanyInfo.findById(req.params.id);
 
   if (companyInfo){
-      await companyInfo.deleteOne({_id: companyInfo._id});
+      const companyInfoId = companyInfo._id;
+      await companyInfo.deleteOne({_id: companyInfoId});
+      await redisClient.del(`companyInfo:${companyInfoId}`);
       return res.status(200).json({message: 'Company Info deleted successfuly'});
   } else {
     return res.status(404).json({ message: 'Company Info not found'});

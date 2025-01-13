@@ -6,6 +6,10 @@ const crypto = require('crypto');
 import User, { IUser } from '../models/userModel';
 import { getTokens } from '../utils/jwtFunctions';
 import { verifyPassword } from '../utils/constants';
+import redisClient from '../redis';
+import { getRedisWithId, getRedisAll, getSafeUserRedisWithId } from '../utils/redisFunctions';
+
+const redis_expiry = 86400 //24hours in seconds
 
 declare module 'express' {
   interface Request {
@@ -42,6 +46,8 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     user.refreshToken = refreshToken;
     await user.save();
 
+    await redisClient.set(`user:${userId}`, JSON.stringify(user), { EX: redis_expiry }); 
+
     res.status(200).json({
       _id: user._id,
       firstName: user.firstName,
@@ -64,9 +70,8 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 // @route GET /api/users
 // @access Private/Admin
 const refreshUser = (req: Request, res: Response) => {
-  const user: IUser | undefined = req.user;
+  const user = req.user;
   if (user) {
-    // console.log('user to refresh: ', user);
 
     const userId = user._id + '';
     const { accessToken, refreshToken } = getTokens(res, userId);
@@ -139,6 +144,8 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
     user.refreshToken = refreshToken;
     await user.save();
 
+    await redisClient.set(`user:${userId}`, JSON.stringify(user), { EX: redis_expiry });
+
     return res.status(201).json({
       _id: user._id,
       firstName: user.firstName,
@@ -161,6 +168,14 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
 // @route POST /api/users/logout
 // @access Private
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?._id
+
+  // Optionally blacklist the refresh token
+  if (userId) {
+    const keysToDelete: string[] = [`user:${userId}`, `userSafe:${userId}`, 'users'];
+    await redisClient.del(keysToDelete); 
+  }
+
   res.clearCookie(process.env.ACCESS_TOKEN_NAME!);
   res.clearCookie(process.env.REFRESH_TOKEN_NAME!);
   req.user = undefined;
@@ -170,12 +185,16 @@ const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   return res.status(200).json({ message: 'Logged out successfully' });
 });
 
+
+
 // @desc Get User Profile
 // @route GET /api/users/profile
 // @access Private
 const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findById(req.user?._id);
+  const userId = req.user?._id + '';
+  const user = await getRedisWithId('user', userId, User, redis_expiry)
 
+  
   if (user) {
     res.status(200).json({
       _id: user._id,
@@ -196,7 +215,8 @@ const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
 // @route PUT /api/users/profile
 // @access Private
 const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findById(req.user?._id);
+  const userId = req.user?._id + '';
+  const user = await getRedisWithId('user', userId, User, redis_expiry)
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName; //either new name or same as in the db
@@ -219,6 +239,8 @@ const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
 
     const updatedUser = await user.save();
 
+    await redisClient.set(`user:${req.user?._id}`, JSON.stringify(updatedUser), { EX: redis_expiry });
+
     return res.status(200).json({
       _id: updatedUser._id,
       firstName: updatedUser.firstName,
@@ -237,17 +259,19 @@ const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
 // @route GET /api/users
 // @access Private/Admin
 const getUsers = asyncHandler(async (req: Request, res: Response) => {
-  const users = await User.find({});
+  const users = await getRedisAll('users', User, redis_expiry)
+  
   return res.status(200).json(users);
 });
+
+
 
 // @desc Get user by id
 // @route GET /api/users/:id
 // @access Private/Admin
 const getUserById = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findById(req.params.id).select(
-    '-password -twoFaSecret'
-  );
+  const userId = req.params.id;
+  const user = await getSafeUserRedisWithId('userSafe', userId, User, redis_expiry)
 
   if (user) {
     return res.status(200).json(user);
@@ -260,7 +284,8 @@ const getUserById = asyncHandler(async (req: Request, res: Response) => {
 // @route PUT /api/users/:id
 // @access Private/Admin
 const updateUser = asyncHandler(async (req: Request, res: Response) => {
-  const user = await User.findById(req.params.id);
+  const userId = req.params.id;
+  const user = await getSafeUserRedisWithId('user', userId, User, redis_expiry) //check thisssssssssssssssssssssssssssssssssssssssss
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName;
@@ -277,6 +302,8 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
     }
 
     const updatedUser = await user.save();
+    await redisClient.set(`user:${userId}`, JSON.stringify(updatedUser), { EX: redis_expiry });
+
     return res.status(200).json({
       _id: updatedUser._id,
       firstName: updatedUser.firstName,
@@ -386,12 +413,17 @@ const resetPassword = async (req: Request, res: Response) => {
 const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findById(req.params.id);
 
+
   if (user) {
     if (user.isAdmin) {
       return res.status(400).json({ message: 'Cannot delete admin user' });
     }
+    
+    const keysToDelete: string[] = [`user:${user._id}`, `userSafe:${user._id}`, 'users'];
+    await redisClient.del(keysToDelete);
 
     await user.deleteOne({ _id: user._id });
+    
     return res.status(200).json({ message: 'User deleted successfuly' });
   } else {
     return res.status(400).json({ message: 'User not found' });

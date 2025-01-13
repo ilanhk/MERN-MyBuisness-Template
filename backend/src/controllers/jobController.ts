@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import asyncHandler from '../middlewares/asyncHandler';
 import Job, { IJob } from '../models/jobModel';
+import redisClient from '../redis';
+import { getRedisWithId, getRedisAll } from '../utils/redisFunctions';
+
+const redis_expiry = 86400 //24hours in seconds
 
 declare module 'express' {
   interface Request {
@@ -39,7 +43,7 @@ const createJob = asyncHandler(async (req: Request, res: Response) => {
 // @route GET /api/jobs
 // @access Public
 const getJobs = asyncHandler(async (req: Request, res: Response) => {
-    const jobs = await Job.find({}); 
+    const jobs = await getRedisAll('jobs', Job, redis_expiry);
     return res.status(200).json(jobs); 
 });
 
@@ -48,7 +52,8 @@ const getJobs = asyncHandler(async (req: Request, res: Response) => {
 // @route GET /api/jobs/:id
 // @access Private/Admin
 const getJobById = asyncHandler(async (req: Request, res: Response) => {
-  const job = await Job.findById(req.params.id);
+  const jobId = req.params.id;
+  const job = await getRedisWithId('job', jobId, Job, redis_expiry);
 
   if (job){
     return res.status(200).json(job);
@@ -63,7 +68,8 @@ const getJobById = asyncHandler(async (req: Request, res: Response) => {
 // @route PUT /api/jobs/:id
 // @access Private/Admin
 const updateJob = asyncHandler(async (req: Request, res: Response) => {
-  const job = await Job.findById(req.params.id) as IJob;
+  const jobId = req.params.id;
+  const job = await getRedisWithId('job', jobId, Job, redis_expiry);
 
   if (!job) {
     return res.status(404).json({ message: 'Job not found'});
@@ -87,6 +93,7 @@ const updateJob = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const updatedJob = await job.save();
+  await redisClient.set(`job:${jobId}`, JSON.stringify(updateJob), { EX: redis_expiry });
   return res.status(200).json(updatedJob);
 });
 
@@ -98,7 +105,10 @@ const deleteJob = asyncHandler(async (req: Request, res: Response) => {
   const job = await Job.findById(req.params.id);
 
   if (job){
-      await job.deleteOne({_id: job._id});
+    const jobId = job._id;
+      await job.deleteOne({_id: jobId});
+      const keysToDelete: string[] = [`job:${jobId}`, 'jobs'];
+      await redisClient.del(keysToDelete);
       return res.status(200).json({message: 'Job deleted successfuly'});
   } else {
     return res.status(404).json({ message: 'Job not found'});
