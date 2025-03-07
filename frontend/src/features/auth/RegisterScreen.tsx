@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IndDB } from '../../general/utils/indexedDB';
 import AuthFormButton from './components/AuthFormButton';
+import GoogleAuthButton from './components/GoogleAuthButton';
 import { useSelectAuth, useRegister } from './state/hooks';
 import './css/forms.css';
 
@@ -105,7 +106,7 @@ const RegisterScreen = () => {
         <div className='form-checkbox'>
           <input 
             type="checkbox" 
-            id="acknolegde" 
+            id="acknowlegde" 
             ref={inEmailListRef}   
             required
             />
@@ -115,12 +116,18 @@ const RegisterScreen = () => {
         {error && <p style={{ color: 'red' }}>{error}</p>}
 
         <AuthFormButton text="Register" />
+
+        <h3>OR</h3>
+
+        <GoogleAuthButton />
       </form>
+      
+      
       <p>
         Have an account? <Link to="/login">Login</Link>
       </p>
 
-      <h3>or Sign in with google</h3>
+      
     </div>
   );
 };

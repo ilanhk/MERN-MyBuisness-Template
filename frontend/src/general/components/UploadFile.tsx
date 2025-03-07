@@ -1,4 +1,4 @@
-
+import { memo } from 'react';
 
 interface FileUploadProps {
   onFileChange: (value: File) => void;
@@ -19,4 +19,4 @@ const FileUpload: React.FC<FileUploadProps>  = ({onFileChange}) => {
   );
 };
 
-export default FileUpload;
+export default memo(FileUpload);

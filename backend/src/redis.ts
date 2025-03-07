@@ -5,13 +5,14 @@ dotenv.config();
 
 
 const client = createClient({
-  password: process.env.REDIS_PASSWORD,
   socket: {
-      host: 'redis-14403.c92.us-east-1-3.ec2.redns.redis-cloud.com',
-      port: 14403,
-      timeout: 10000, // 10 seconds
+    host: process.env.REDIS_HOST || 'localhost',
+    port: Number(process.env.REDIS_PORT) || 6379,
+    timeout: 10000,
   }
 });
+
+
 
 client.on('error', (err) => {
   console.error('Redis Client Error', err);

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { IndDB } from '../../general/utils/indexedDB'
 import { useLogin, useSelectAuth } from "./state/hooks";
 import AuthFormButton from "./components/AuthFormButton";
+import GoogleAuthButton from "./components/GoogleAuthButton";
 
 
 const LoginScreen = () => {
@@ -99,7 +100,11 @@ const LoginScreen = () => {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-          <AuthFormButton text="Continue"/> 
+          <AuthFormButton text="Continue"/>
+          
+          <h3>OR</h3>
+
+          <GoogleAuthButton /> 
       </form>
       <p>
         Forgot <Link to='/forgot-password'>username or password?</Link>

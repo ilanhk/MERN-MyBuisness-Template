@@ -1,4 +1,5 @@
 import Button, { ButtonProps } from '@mui/material/Button';
+import { memo } from 'react';
 import '../css/companyInfoForms.css'
 
 interface CIFormButtonProps {
@@ -23,4 +24,4 @@ const CIFormButton = ({ text, color, onClick }: CIFormButtonProps) => {
   );
 };
 
-export default CIFormButton;
+export default memo(CIFormButton);

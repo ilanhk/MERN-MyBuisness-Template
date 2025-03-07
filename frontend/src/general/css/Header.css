@@ -18,7 +18,7 @@
 }
 
 .navbar-logo {
-  height: 50px;
+  height: auto;
   width: auto; /* Maintains aspect ratio */
 }
 

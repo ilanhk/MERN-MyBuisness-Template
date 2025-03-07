@@ -1,21 +1,20 @@
 @import '../../../general/css/globalVariables.css';
 
-.profile-container{
+.profile-container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap; /* Allows content to wrap if it overflows */
   width: 100%;
-  height: 100%;
+  height: auto; /* Adjust height dynamically based on content */
 }
 
 
 
-.profile-menu{
-  width: 10%;
-  height: 100%;
-  margin-right: 15%;
-  padding: 1%;
+.profile-menu {
+  width: 15%; /* Slightly increase for better usability */
+  margin-right: 5%; /* Reduce unused space */
+  height: auto; /* Let it adjust dynamically */
   background-color: rgb(198, 227, 243);
-  
 }
 
 .profile-section{
@@ -28,6 +27,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 50rem;
   
 }
 

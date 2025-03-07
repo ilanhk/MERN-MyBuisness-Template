@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { verifyToken } from '../utils/GoogleAuthenticatorUtils';
-import asyncHandler from '../middlewares/asyncHandler';
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 import User, { IUser } from '../models/userModel';
@@ -15,12 +14,12 @@ declare module 'express' {
   interface Request {
     user?: IUser;
   }
-}
+};
 
 // @desc Authenticate/login user & get token
 // @route POST /api/users/login
 // @access Public
-const loginUser = asyncHandler(async (req: Request, res: Response) => {
+const loginUser = async (req: Request, res: Response) => {
   const { email, password, twoFaCode } = req.body;
 
   const user = await User.findOne({ email }); // Find the user in the DB
@@ -64,7 +63,7 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(401).json({ message:'Invalid Email or Password' });
   }
-});
+};
 
 // @desc Refresh users
 // @route GET /api/users
@@ -96,7 +95,7 @@ const refreshUser = (req: Request, res: Response) => {
 // @desc Register user
 // @route POST /api/users
 // @access Public
-const registerUser = asyncHandler(async (req: Request, res: Response) => {
+const registerUser = async (req: Request, res: Response) => {
   const { firstName, lastName, email, password, isEmployee, inEmailList } =
     req.body;
 
@@ -162,12 +161,12 @@ const registerUser = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(400).json({ message: 'Invalid user data' });
   }
-});
+};
 
 // @desc Logout User / clear cookie - bc we will be storing the token in a cookie on a server, not about clearing localStorage in the frontend
 // @route POST /api/users/logout
 // @access Private
-const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+const logoutUser = async (req: Request, res: Response) => {
   const userId = req.user?._id
 
   // Optionally blacklist the refresh token
@@ -183,14 +182,14 @@ const logoutUser = asyncHandler(async (req: Request, res: Response) => {
   //to clear the cookie
 
   return res.status(200).json({ message: 'Logged out successfully' });
-});
+};
 
 
 
 // @desc Get User Profile
 // @route GET /api/users/profile
 // @access Private
-const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
+const getUserProfile = async (req: Request, res: Response) => {
   const userId = req.user?._id + '';
   const user = await getRedisWithId('user', userId, User, redis_expiry)
 
@@ -209,12 +208,12 @@ const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(404).json({ message: 'User not found' });
   }
-});
+};
 
 // @desc Update User Profile
 // @route PUT /api/users/profile
 // @access Private
-const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
+const updateUserProfile = async (req: Request, res: Response) => {
   const userId = req.user?._id + '';
   const user = await getRedisWithId('user', userId, User, redis_expiry)
 
@@ -253,23 +252,23 @@ const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(404).json({ message: 'User not found' });
   }
-});
+};
 
 // @desc Get users
 // @route GET /api/users
 // @access Private/Admin
-const getUsers = asyncHandler(async (req: Request, res: Response) => {
+const getUsers = async (req: Request, res: Response) => {
   const users = await getRedisAll('users', User, redis_expiry)
   
   return res.status(200).json(users);
-});
+};
 
 
 
 // @desc Get user by id
 // @route GET /api/users/:id
 // @access Private/Admin
-const getUserById = asyncHandler(async (req: Request, res: Response) => {
+const getUserById = async (req: Request, res: Response) => {
   const userId = req.params.id;
   const user = await getSafeUserRedisWithId('userSafe', userId, User, redis_expiry)
 
@@ -278,12 +277,12 @@ const getUserById = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(404).json({ message: 'User not found' });
   }
-});
+};
 
 // @desc Update user
 // @route PUT /api/users/:id
 // @access Private/Admin
-const updateUser = asyncHandler(async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: Response) => {
   const userId = req.params.id;
   const user = await getSafeUserRedisWithId('user', userId, User, redis_expiry) //check thisssssssssssssssssssssssssssssssssssssssss
 
@@ -318,7 +317,7 @@ const updateUser = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(404).json({ message: 'User not found' });
   }
-});
+};
 
 // @desc Send email to user if they forget password
 // @route POST /api/users/forgot-password
@@ -410,7 +409,7 @@ const resetPassword = async (req: Request, res: Response) => {
 // @desc Delete user
 // @route DELETE /api/users/:id
 // @access Private/Admin
-const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+const deleteUser = async (req: Request, res: Response) => {
   const user = await User.findById(req.params.id);
 
 
@@ -428,7 +427,7 @@ const deleteUser = asyncHandler(async (req: Request, res: Response) => {
   } else {
     return res.status(400).json({ message: 'User not found' });
   }
-});
+};
 
 export {
   loginUser,

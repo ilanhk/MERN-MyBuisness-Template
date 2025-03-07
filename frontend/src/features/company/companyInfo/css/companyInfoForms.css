@@ -1,11 +1,10 @@
 @import '../../../../general/css/globalVariables.css';
 
-.ci-form-container{
-  width: 45%;
-  color: var(--dark-blue-font);
-  font-family: var(--company-font-family);
-  margin: 1%;
-  margin-bottom: 5%;
+.ci-form-container {
+  flex: 1; /* Allow it to grow and shrink with the container */
+  max-width: 100%; /* Prevent overflow */
+  min-width: 300px; /* Ensure it doesn't become too narrow */
+  margin: 1%; /* Keep consistent spacing */
 }
 
 .ci-formScreen-title{

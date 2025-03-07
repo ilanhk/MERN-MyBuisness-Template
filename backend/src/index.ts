@@ -1,10 +1,13 @@
 import express from 'express';
+import session from 'express-session';
 import cors from 'cors';
 import connectDB from './config/db';
 import * as dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import passport from './utils/googleStrategy';
 import userRoutes from './routes/userRoutes';
 import twoFaRoutes from './routes/2faRoutes';
+import googleOAuthRoutes from './routes/googleOAuthRoutes';
 import productRoutes from './routes/productRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import jobRoutes from './routes/jobRoutes';
@@ -23,6 +26,14 @@ const port = process.env.PORT
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })); //for form data
 
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
 //Cookie parser middleware
 app.use(cookieParser()); //can save in express session also 
 
@@ -33,8 +44,10 @@ app.listen(port, () => {
 
 //Cors
 app.use(cors({
-  origin: ['http://localhost:5173'],
-  credentials: true, //make sure you get the cookies from the session (req and res)
+  origin: 'http://localhost:5173', // Allow frontend
+  credentials: true, // Allow cookies/sessions
+  methods: ['GET', 'POST'], // Allow the necessary HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 //allow domains from the frontend
 
@@ -43,6 +56,9 @@ app.use('/api/users', userRoutes);
 
 //2Fa routes
 app.use('/api/2fa', twoFaRoutes);
+
+//Google OAuth routes
+app.use('/api/google', googleOAuthRoutes);
 
 // product routes
 app.use('/api/products', productRoutes);
@@ -69,3 +85,8 @@ app.use('/api/analytics', analyticsRoutes);
 
 
 //log for user actions
+
+
+//For Google OAuth
+app.use(passport.initialize());
+app.use(passport.session());

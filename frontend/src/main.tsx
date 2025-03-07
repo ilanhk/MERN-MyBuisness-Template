@@ -6,6 +6,7 @@ import {
   RouterProvider
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { GoogleOAuthProvider } from '@react-oauth/google';  // ✅ Move GoogleOAuthProvider here
 import store from './app/store';
 import App from './App';
 
@@ -31,6 +32,8 @@ import ServicesScreen from './features/company/ServicesScreen';
 import CareersScreen from './features/company/jobs/CareersScreen';
 import ContactUsScreen from './features/company/ContactUsScreen';
 import './App.css';
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID!;
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -67,8 +70,12 @@ const router = createBrowserRouter(
   )
 );
 
+console.log('google cli id: ' , GOOGLE_CLIENT_ID)
+
 createRoot(document.getElementById('root')!).render(
-  <Provider store={store}>
-    <RouterProvider router={router} />
-  </Provider>
+  <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  </GoogleOAuthProvider>
 );
