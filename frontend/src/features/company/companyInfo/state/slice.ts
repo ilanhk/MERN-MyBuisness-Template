@@ -21,6 +21,10 @@ export type CompanyInfoState = {
   company: {
     name: string | null;
     logoImage: string | null; //need to save the file path of aws link or filepath of image in a local folder
+    companyType: {
+      isEcommerce: boolean | false;
+      hasProducts: boolean | false;
+    };
   };
   home: {
     valueProposition: {
@@ -36,7 +40,7 @@ export type CompanyInfoState = {
   about: {
     title: string | null;
     description: string | null;
-    image: string |null;
+    image: string | null;
   };
   services: {
     title: string | null;
@@ -81,16 +85,23 @@ export type CompanyInfoStateType = {
   status: EnumStatus;
 };
 
-
 const initialState: CompanyInfoStateType = {
   infos: {
     _id: '',
-    company: { name: null, logoImage: null },
+    company: {
+      name: null,
+      logoImage: null,
+      companyType: {
+        isEcommerce: false,
+        hasProducts: false,
+      },
+    },
     home: {
       valueProposition: {
         proposition: 'Our value proposition goes here',
         callToAction: 'Get Started with Us',
-        image:'https://paulcollege.unh.edu/sites/default/files/styles/landscape_480x260/public/landing-page/header-image/2018/marketing-dept-tom-gruen-paul-college1920x475.jpg?h=2a536532&itok=HXpy1_Cd',
+        image:
+          'https://paulcollege.unh.edu/sites/default/files/styles/landscape_480x260/public/landing-page/header-image/2018/marketing-dept-tom-gruen-paul-college1920x475.jpg?h=2a536532&itok=HXpy1_Cd',
       },
       customerSection: {
         title: 'Our Customers',
@@ -99,7 +110,8 @@ const initialState: CompanyInfoStateType = {
     },
     about: {
       title: 'About Our Company',
-      description: 'We are a company dedicated to providing top-notch services.',
+      description:
+        'We are a company dedicated to providing top-notch services.',
       image: 'sample-image-url.jpg',
     },
     services: {
@@ -143,7 +155,6 @@ const initialState: CompanyInfoStateType = {
   status: EnumStatus.Null,
 };
 
-
 export const createCompanyInfo = createAsyncThunk(
   'companyInfo/create',
   async () => {
@@ -167,8 +178,6 @@ export const getCompanyInfo = createAsyncThunk(
     return response.data[0];
   }
 );
-
-
 
 export const updateCompanyInfo = createAsyncThunk(
   'user/updateCompanyInfo',

@@ -1,24 +1,45 @@
 import React, { useEffect, memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Header.css';
-import { navItems, adminItems, NavItem } from '../utils/navItems';
+import { navItemsNoProducts, navItemsWithProducts, adminItemsNoProducts, adminItemsWithProducts} from '../utils/navItems';
 import { useSelectAuth } from '../../features/auth/state/hooks';
+import { useSelectCompanyInfo } from '../../features/company/companyInfo/state/hooks';
+import { CompanyInfoState } from '../../features/company/companyInfo/state/slice';
 import CompanyLogo from './CompanyLogo';
 import LoginButton from './LoginButton';
 import ProfileButton from './ProfileButton';
 
 const Header: React.FC = () => {
   const auth = useSelectAuth();
-  const navItemsWithAdminItems: NavItem[] = navItems.concat(adminItems);
+  const companyInfo = useSelectCompanyInfo() as CompanyInfoState;
+  const { hasProducts } = companyInfo.company.companyType;
+
+  // Initialize navItems and adminItems as arrays
+  let navItems;
+  let adminItems;
+
+  // Set navItems and adminItems based on companyInfo
+  if (hasProducts) {
+    navItems = navItemsWithProducts;
+    adminItems = adminItemsWithProducts;
+  } else {
+    navItems = navItemsNoProducts;
+    adminItems = adminItemsNoProducts;
+  }
+
   const [navItemsList, setNavItemsList] = useState(navItems);
 
   useEffect(() => {
+    // Combine navItems and adminItems based on auth state
+    const navItemsWithAdminItems = navItems.concat(adminItems);
+
+    // Update navItemsList based on auth state
     if (auth.isEmployee) {
       setNavItemsList(navItemsWithAdminItems);
-    } else{
+    } else {
       setNavItemsList(navItems);
-    }; 
-  }, [auth?.isEmployee]);
+    }
+  }, [auth?.isEmployee, navItems, adminItems]);  // Only use navItems and adminItems as dependencies
 
   return (
     <nav className="navbar">

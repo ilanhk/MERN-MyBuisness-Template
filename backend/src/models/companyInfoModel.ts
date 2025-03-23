@@ -4,6 +4,10 @@ export interface ICompanyInfo extends Document {
   company: {
     name: string;
     logoImage: string;
+    companyType: {
+      isEcommerce: boolean;
+      hasProducts: boolean;
+    };
   };
   home: {
     valueProposition: {
@@ -65,7 +69,12 @@ const companyInfoSchema: Schema = new mongoose.Schema(
     company: {
       name: { type: String, required: false },
       logoImage: { type: String, required: false },
+      companyType: {
+        isEcommerce: { type: Boolean, required: true, default: false },
+        hasProducts: { type: Boolean, required: true, default: false },
+      },
     },
+    
     home: {
       valueProposition: {
         proposition: { 

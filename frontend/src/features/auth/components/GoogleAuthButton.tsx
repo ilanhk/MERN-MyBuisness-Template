@@ -1,30 +1,19 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
+import { useGoogleOAuth } from '../state/hooks';
 
-const BASE_URL: string = import.meta.env.VITE_APP_BASE_URL!;
+
 
 const GoogleAuthButton: React.FC = () => {
   const navigate = useNavigate();
+  const googleOAuthHook = useGoogleOAuth();
 
   // This function handles the redirect after a successful login
   const handleLoginSuccess = async (response: CredentialResponse) => {
     if (response.credential) {
       try {
-        // Send the credential to your backend instead of directly calling Google
-        const res = await fetch(`${BASE_URL}/google/authenticate`, {
-          method: 'POST',  // Change to POST to securely send the credential
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ credential: response.credential }),
-          credentials: 'include', // Ensure cookies/session are sent
-        });
-  
-        if (!res.ok) throw new Error('Authentication failed');
-  
-        const data = await res.json();
-        console.log('User authenticated:', data);
-  
+        
+        await googleOAuthHook(response.credential);
         // Navigate to home after successful login
         navigate('/');
       } catch (error) {

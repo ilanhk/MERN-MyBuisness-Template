@@ -9,7 +9,7 @@ import getReduxStatus from "../../../../general/utils/getReduxStatus";
 import CIFormButton from "../components/CIFormButton";
 import Loader from "../../../../general/components/Loader";
 import FormMessage from "../../../../general/components/FormMessage";
-import CompanyNameLogoForm from "../components/CompanyNameLogoForm";
+import CompanyNameLogoTypeForm from "../components/CompanyNameLogoTypeForm";
 
 
 const AdminEditCompanyInfo = () => {
@@ -79,7 +79,7 @@ const AdminEditCompanyInfo = () => {
         )}
       </div>
 
-      <CompanyNameLogoForm />
+      <CompanyNameLogoTypeForm />
      
       
     </div>

@@ -1,14 +1,19 @@
 import HeroBlock from "../components/HeroBlock";
 import CustomerSection from "../components/CustomerSection";
+import { useSelectCompanyInfo } from "../../features/company/companyInfo/state/hooks";
+
 
 
 const HomeScreen = () => {
+  const companyInfo = useSelectCompanyInfo();
+  const { hasProducts, isEcommerce } = companyInfo.company.companyType;
   return (
     <div>
       <HeroBlock />
-      <h3>Carosel of categories with top products</h3>
+      {hasProducts && <h3>Carosel of categories with top products</h3>}
+      {isEcommerce && <h3>Carosel of Deals or Best selling Products</h3>}
       <CustomerSection />
-      <h3>Carosel of categories with image of the top product</h3>
+      
       
       
       <h3>Call to action button</h3>

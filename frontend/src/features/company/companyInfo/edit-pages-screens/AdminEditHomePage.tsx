@@ -22,12 +22,12 @@ const AdminEditHomePage = () => {
   const homeInfo = companyInfo?.home;
   const valueProposition = homeInfo?.valueProposition;
 
-  // Use state variables to manage form inputs
+  // Check if valueProposition is undefined or null before using its properties
   const [proposition, setProposition] = useState<string | null>(
-    valueProposition.proposition || ''
+    valueProposition?.proposition || ''
   );
   const [callToAction, setCallToAction] = useState<string | null>(
-    valueProposition.callToAction || ''
+    valueProposition?.callToAction || ''
   );
   const [file, setFile] = useState<File | null>(null);
   const [isError, setIsError] = useState('');

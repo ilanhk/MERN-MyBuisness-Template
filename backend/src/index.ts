@@ -46,7 +46,7 @@ app.listen(port, () => {
 app.use(cors({
   origin: 'http://localhost:5173', // Allow frontend
   credentials: true, // Allow cookies/sessions
-  methods: ['GET', 'POST'], // Allow the necessary HTTP methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow the necessary HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 //allow domains from the frontend

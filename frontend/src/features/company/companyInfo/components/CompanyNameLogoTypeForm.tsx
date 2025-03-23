@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
+import Switch from '@mui/material/Switch';
 import {
   useSelectCompanyInfo,
   useSelectCompanyInfoStatus,
@@ -8,24 +9,35 @@ import {
 import { EnumStatus } from '../state/slice';
 import { uploadSingleFile } from '../../../../general/utils/uploadsApis';
 import UploadFile from '../../../../general/components/UploadFile';
-import CIFormButton from '../components/CIFormButton';
+import CIFormButton from './CIFormButton';
 import FormMessage from "../../../../general/components/FormMessage";
 import Loader from "../../../../general/components/Loader";
 
-const CompanyNameLogoForm = () => {
+const CompanyNameLogoTypeForm = () => {
   const companyInfo = useSelectCompanyInfo();
   const updateCompanyInfoHook = useUpdateCompanyInfo();
   const status = useSelectCompanyInfoStatus();
 
   const info = companyInfo?.company;
-  const { name, logoImage } = info;
+  const { name, logoImage, companyType } = info;
+  const { isEcommerce, hasProducts} = companyType;
   
 
   const [companyName, setCompanyName] = useState<string | null>( name || '');
   const [file, setFile] = useState<File | null>(null);
+  const [ecommerce, setEcommerce] = useState<boolean | null>(isEcommerce);
+  const [products, setProducts] = useState<boolean | null>(hasProducts);
   
   const [isError, setIsError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleEcommerceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEcommerce(event.target.checked);
+  };
+
+  const handleProductsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setProducts(event.target.checked);
+  };
 
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,6 +61,10 @@ const CompanyNameLogoForm = () => {
       company: {
         name: companyName || null,
         logoImage: updatedImageURL || null,
+        companyType: {
+          isEcommerce: ecommerce,
+          hasProducts: products,
+        },
       },
     };
 
@@ -106,6 +122,29 @@ const CompanyNameLogoForm = () => {
               </div>
             </div>
 
+            <div className="ci-form-input">
+                <label htmlFor="ecommerce" className="ci-label">
+                  Is the business an Ecommerce:
+                </label>
+                <p>if no its a Service business</p>
+                <Switch
+                  checked={ecommerce}
+                  onChange={handleEcommerceChange}
+                />
+    
+            </div>
+
+            <div className="ci-form-input">
+                <label htmlFor="product" className="ci-label">
+                  Does the business has products?:
+                </label>
+                <p>if the business has products but is not an Ecommerce business Than its a business that sells products B2B</p>
+                <Switch
+                  checked={products}
+                  onChange={handleProductsChange}
+                />
+            </div>
+
             <div className='ci-button-and-message-section'>
               <CIFormButton text='Edit' color='primary'/>
               {status === EnumStatus.Fail  && (
@@ -123,4 +162,4 @@ const CompanyNameLogoForm = () => {
   );
 };
 
-export default CompanyNameLogoForm;
+export default CompanyNameLogoTypeForm;

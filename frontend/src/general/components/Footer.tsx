@@ -1,7 +1,9 @@
-
+import { useEffect, useState } from 'react';
+import { useSelectCompanyInfo } from '../../features/company/companyInfo/state/hooks';
 import '../css/footer.css';
 import CompanyLogo from './CompanyLogo';
 import SocialMediaSection from './SocialMediaSection';
+
 
 
 interface FooterProps {
@@ -9,6 +11,19 @@ interface FooterProps {
 }
 
 const Footer: React.FC<FooterProps> = ({ year }) => {
+
+  const companyInfo = useSelectCompanyInfo();
+
+  const { hasProducts } = companyInfo.company.companyType;
+  const [ hasProductz, setHasProductz ] = useState(false)
+
+  useEffect(()=>{
+    if(hasProducts){
+      setHasProductz(true)
+    }else{
+      setHasProductz(false)
+    }
+  }, [hasProducts])
   return (
     <footer className="business-footer">
       <div className='footer-logo-and-socials'>
@@ -16,7 +31,7 @@ const Footer: React.FC<FooterProps> = ({ year }) => {
         <SocialMediaSection />
       </div>
       <div className='footer-menu'>
-        <h4>Products </h4>
+        {hasProductz && <h4>Products </h4>}
         <h4>Company </h4>
         <h4>Get in touch </h4>
       </div>

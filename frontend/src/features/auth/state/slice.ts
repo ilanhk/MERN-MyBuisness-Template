@@ -43,7 +43,7 @@ const initialState: AuthStateType = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ email, password, twoFaCode }: { email: string; password: string, twoFaCode?: string }) => {
+  async ({ email, password, twoFaCode }: { email: string; password?: string, twoFaCode?: string }) => {
     const response = await axios.post(
       `${BASE_URL}/users/login`,
       { email, password, twoFaCode },
@@ -79,7 +79,7 @@ export const register = createAsyncThunk(
     lastName: string;
     fullName: string;
     email: string;
-    password: string;
+    password?: string;
     isEmployee?: boolean;
     inEmailList: boolean;
   }) => {
@@ -97,6 +97,18 @@ export const register = createAsyncThunk(
       { withCredentials: true }
     );
 
+    return response.data;
+  }
+);
+
+export const googleOAuth = createAsyncThunk(
+  'auth/googleOAuth',
+  async ({ credential }: { credential: string;  }) => {
+    const response = await axios.post(
+      `${BASE_URL}/google/authenticate`,
+      { credential },
+      { withCredentials: true }
+    );
     return response.data;
   }
 );
@@ -175,6 +187,16 @@ const authSlice = createSlice({
         }
       )
       .addCase(register.rejected, (state) => {
+        state.status = EnumStatus.Fail;
+      })
+      .addCase(googleOAuth.pending, (state) => {
+        state.status = EnumStatus.Loading;
+      })
+      .addCase(googleOAuth.fulfilled, (state, action: PayloadAction<AuthState>) => {
+        state.status = EnumStatus.Success;
+        state.auth = action.payload;
+      })
+      .addCase(googleOAuth.rejected, (state) => {
         state.status = EnumStatus.Fail;
       })
       .addCase(logout.fulfilled, (state) => {

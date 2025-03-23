@@ -21,6 +21,10 @@ const createCompanyInfo = async (req: Request, res: Response) => {
     company: {
       name: 'MyBusiness',
       logoImage: '',
+      companyType: {
+        isEcommerce: false,
+        hasProducts: false,
+      },
     },
     home: {
       valueProposition: {
@@ -66,7 +70,7 @@ const createCompanyInfo = async (req: Request, res: Response) => {
       socialMedia: {
         linkedin: 'https://www.linkedin.com/in/ilan-lieberman-9a1043132/',
         
-      }
+      },
     }
   });
   
@@ -93,6 +97,10 @@ const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
     company: {
       name: updateField(companyInfo.company.name, req.body.company?.name),
       logoImage: updateField(companyInfo.company.logoImage, req.body.company?.logoImage),
+      companyType: {
+        isEcommerce: updateField(companyInfo.company.companyType.isEcommerce, req.body.companyType?.isEcommerce),
+        hasProducts: updateField(companyInfo.company.companyType.hasProducts, req.body.companyType?.hasProducts),
+      },
     },
     home: {
       valueProposition: {

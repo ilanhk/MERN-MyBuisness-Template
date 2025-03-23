@@ -60,8 +60,8 @@ const RegisterScreen = () => {
       lastName,
       fullName,
       email,
-      password,
-      inEmailList
+      inEmailList,
+      password
     );
 
     // indexedDB.saveDataToDB("token", auth.refreshToken);
@@ -119,7 +119,7 @@ const RegisterScreen = () => {
 
         <h3>OR</h3>
 
-        <GoogleAuthButton />
+        <GoogleAuthButton /> 
       </form>
       
       

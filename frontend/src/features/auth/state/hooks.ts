@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
-import { login, refresh, register, logout, forgotPassword, resetPassword } from "./slice";
+import { login, refresh, register, googleOAuth, logout, forgotPassword, resetPassword } from "./slice";
 import { selectAuth, selectAuthStatus } from "./selectors";
 
 //get auth
@@ -19,7 +19,7 @@ export const useSelectAuthStatus = ()=>{
 export const useLogin = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
-    (email: string, password: string, twoFaCode?: string) => {
+    (email: string, password?: string, twoFaCode?: string) => {
       return dispatch(login({ email, password, twoFaCode }));
     },
     [dispatch]
@@ -47,8 +47,9 @@ export const useRegister = () => {
       lastName: string,
       fullName: string,
       email: string,
-      password: string,
-      inEmailList: boolean
+      inEmailList: boolean,
+      password?: string,
+      
     ) => {
       return dispatch(register({
         firstName,
@@ -63,6 +64,17 @@ export const useRegister = () => {
   );
 };
 
+
+// googleOAuth
+export const useGoogleOAuth = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    (credential: string ) => {
+      return dispatch(googleOAuth({ credential }));
+    },
+    [dispatch]
+  );
+};
 
 //logout
 export const useLogout = () => {
