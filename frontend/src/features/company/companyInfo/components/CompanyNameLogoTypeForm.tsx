@@ -25,8 +25,8 @@ const CompanyNameLogoTypeForm = () => {
 
   const [companyName, setCompanyName] = useState<string | null>( name || '');
   const [file, setFile] = useState<File | null>(null);
-  const [ecommerce, setEcommerce] = useState<boolean | null>(isEcommerce);
-  const [products, setProducts] = useState<boolean | null>(hasProducts);
+  const [ecommerce, setEcommerce] = useState<boolean | false>(isEcommerce);
+  const [products, setProducts] = useState<boolean | false>(hasProducts);
   
   const [isError, setIsError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -57,6 +57,10 @@ const CompanyNameLogoTypeForm = () => {
       }
     };
 
+    console.log('ecommerce b4 submited: ', ecommerce);
+    console.log('products b4 submited: ', products);
+
+
     const dataToUpdate = {
       company: {
         name: companyName || null,
@@ -68,11 +72,14 @@ const CompanyNameLogoTypeForm = () => {
       },
     };
 
+
     try {
       setIsSuccess(false);
 
+      console.log('datatoupdate', dataToUpdate)
+
       const update = await updateCompanyInfoHook(companyInfo?._id, dataToUpdate);
-      console.log('update company logo and name', update);
+      console.log('update company logo, name, type', update);
 
 
       if (status === EnumStatus.Fail) {
@@ -151,7 +158,7 @@ const CompanyNameLogoTypeForm = () => {
                 <FormMessage message={isError} level="error"/>
               )}
               {isSuccess && (
-                <FormMessage message="Name and/or Logo Updated!" level="success"/>
+                <FormMessage message="Name, Logo and Company Type Updated!" level="success"/>
               )}
               {status === EnumStatus.Loading && <Loader size="small" />}
             </div>

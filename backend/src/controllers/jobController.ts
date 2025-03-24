@@ -69,7 +69,7 @@ const getJobById = asyncHandler(async (req: Request, res: Response) => {
 // @access Private/Admin
 const updateJob = asyncHandler(async (req: Request, res: Response) => {
   const jobId = req.params.id;
-  const job = await getRedisWithId('job', jobId, Job, redis_expiry);
+  const job = await Job.findById(jobId) as IJob;
 
   if (!job) {
     return res.status(404).json({ message: 'Job not found'});
@@ -79,7 +79,6 @@ const updateJob = asyncHandler(async (req: Request, res: Response) => {
   Object.assign(job, {
     name: req.body.name || job.name,
     department: req.body.department || job.department,
-    jobType: req.body.jobType || job.jobType,
     description: {
       position: req.body.description?.position || job.description.position,
       yourRole: req.body.description?.yourRole || job.description.yourRole,
@@ -89,7 +88,8 @@ const updateJob = asyncHandler(async (req: Request, res: Response) => {
     location: {
       city: req.body.location?.city || job.location.city,
       country: req.body.location?.country || job.location.country
-    }
+    },
+    jobType: req.body.jobType || job.jobType,
   });
 
   const updatedJob = await job.save();

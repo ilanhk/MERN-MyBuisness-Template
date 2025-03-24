@@ -112,7 +112,7 @@ const updateProduct = asyncHandler(async (req: Request, res: Response) => {
     const { name, price, description, image, supplier, supplierPrice, category, isChosen } = req.body;
 
     const productId = req.params.id;
-    const product = await getRedisWithId('product', productId, Product, redis_expiry);
+    const product = await Product.findById(productId);
 
     if(product){
         product.name = name;

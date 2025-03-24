@@ -84,7 +84,7 @@ const createCompanyInfo = async (req: Request, res: Response) => {
 // @access Private/Admin
 const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
   const companyInfoId = req.params.id;
-  const companyInfo = await getRedisWithId('companyInfo', companyInfoId, CompanyInfo, redis_expiry);
+  const companyInfo = await CompanyInfo.findById(companyInfoId);
 
   if (!companyInfo) {
     return res.status(404).json({ message: 'Company Info not found' });
@@ -98,8 +98,8 @@ const updateCompanyInfo = asyncHandler(async (req: Request, res: Response) => {
       name: updateField(companyInfo.company.name, req.body.company?.name),
       logoImage: updateField(companyInfo.company.logoImage, req.body.company?.logoImage),
       companyType: {
-        isEcommerce: updateField(companyInfo.company.companyType.isEcommerce, req.body.companyType?.isEcommerce),
-        hasProducts: updateField(companyInfo.company.companyType.hasProducts, req.body.companyType?.hasProducts),
+        isEcommerce: updateField(companyInfo.company.companyType.isEcommerce, req.body.company.companyType?.isEcommerce),
+        hasProducts: updateField(companyInfo.company.companyType.hasProducts, req.body.company.companyType?.hasProducts),
       },
     },
     home: {

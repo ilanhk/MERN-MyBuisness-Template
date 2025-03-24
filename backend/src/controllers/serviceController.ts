@@ -73,7 +73,7 @@ const getServiceById = (async (req: Request, res: Response) => {
 // @access Private/Admin
 const updateService = async (req: Request, res: Response) => {
   const serviceId = req.params.id;
-  const service = await getRedisWithId('service', serviceId, Service, redis_expiry);
+  const service = await Service.findById(serviceId);
 
   if (!service) {
     return res.status(404).json({ message: 'Service not found'});

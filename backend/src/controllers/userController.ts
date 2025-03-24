@@ -215,7 +215,7 @@ const getUserProfile = async (req: Request, res: Response) => {
 // @access Private
 const updateUserProfile = async (req: Request, res: Response) => {
   const userId = req.user?._id + '';
-  const user = await getRedisWithId('user', userId, User, redis_expiry)
+  const user = await User.findById(userId);
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName; //either new name or same as in the db
@@ -284,7 +284,7 @@ const getUserById = async (req: Request, res: Response) => {
 // @access Private/Admin
 const updateUser = async (req: Request, res: Response) => {
   const userId = req.params.id;
-  const user = await getSafeUserRedisWithId('user', userId, User, redis_expiry) //check thisssssssssssssssssssssssssssssssssssssssss
+  const user = await User.findById(userId);
 
   if (user) {
     user.firstName = req.body.firstName || user.firstName;
