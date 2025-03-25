@@ -14,6 +14,7 @@ import jobRoutes from './routes/jobRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 import comapanyInfoRoutes from './routes/companyInfoRoutes';
 import serviceRoutes from './routes/serviceRoutes';
+import websiteStylesRoutes from './routes/websiteStylesRoutes';
 
 
 dotenv.config();
@@ -76,6 +77,9 @@ app.use('/api/companyInfo', comapanyInfoRoutes);
 
 //services routes
 app.use('/api/services', serviceRoutes);
+
+//WebsiteStyles routes
+app.use('/api/website-styles', websiteStylesRoutes);
 
 
 //employee tasks routes
