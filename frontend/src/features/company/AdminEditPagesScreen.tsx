@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AdminEditCompanyInfo from "./companyInfo/edit-pages-screens/AdminEditCompanyInfo";
-import AdminEditWebsiteStyles from "./companyInfo/edit-pages-screens/AdminEditWebsiteStyles";
+import AdminEditWebsiteStyles from "../websiteStyles/AdminEditWebsiteStyles";
 import AdminEditHomePage from "./companyInfo/edit-pages-screens/AdminEditHomePage";
 import AdminEditAboutUs from "./companyInfo/edit-pages-screens/AdminEditAboutUs";
 import AdminEditServices from "./companyInfo/edit-pages-screens/AdminEditServices";

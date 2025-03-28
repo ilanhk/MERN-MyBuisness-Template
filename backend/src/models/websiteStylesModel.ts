@@ -67,6 +67,6 @@ const WebsiteStylesSchema: Schema = new mongoose.Schema({
 });
 
 
-const WebsiteStyles = mongoose.model("Job", WebsiteStylesSchema);
+const WebsiteStyles = mongoose.model("WebsiteStyles", WebsiteStylesSchema);
 
 export default WebsiteStyles;

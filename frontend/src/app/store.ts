@@ -5,6 +5,7 @@ import profileReducer from "../features/profile/state/slice";
 import companyInfoReducer from "../features/company/companyInfo/state/slice";
 import serviceReducer from "../features/company/services/state/slice";
 import jobReducer from "../features/company/jobs/state/slice";
+import websiteStylesReducer from "../features/websiteStyles/state/slice";
 
 
 const appReducer = combineReducers({
@@ -14,6 +15,7 @@ const appReducer = combineReducers({
     companyInfoReducer,
     serviceReducer,
     jobReducer,
+    websiteStylesReducer
 }); //add all reducers here
 
 const store = configureStore({
