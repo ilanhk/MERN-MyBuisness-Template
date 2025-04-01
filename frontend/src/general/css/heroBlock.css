@@ -6,8 +6,8 @@
   width: 100%;
   height: 35%;
   margin: 2%;
-  color: var(--dark-blue-font);
-  font-family: var(--company-font-family);
+  color: var(--general-word-color);
+  font-family: var(--general-font);
 }
 
 .hero-block-info{

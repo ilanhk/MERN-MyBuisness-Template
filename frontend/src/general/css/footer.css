@@ -4,7 +4,9 @@
 .business-footer{
   display: flex;
   flex-direction: column;
-  background-color: var(--header-footer-bg-color);
+  background-color: var(--header-footer-background-color);
+  color: var(--header-footer-word-color);
+  font-size: var(--header-footer-font-size);
   width: 100%;
   padding: 1rem;
 }

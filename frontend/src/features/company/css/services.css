@@ -4,8 +4,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  color: var(--dark-blue-font);
-  font-family: var(--company-font-family);
+  color: var(--general-word-color);
+  font-family: var(--general-font);
 }
 
 .service-block {

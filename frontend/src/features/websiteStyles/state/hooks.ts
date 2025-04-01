@@ -60,7 +60,7 @@ export const useUpdateWebsiteStyles = () => {
 };
 
 // delete website styles
-export const useWebsiteStyles = () => {
+export const useDeleteWebsiteStyles = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
     (id: string) => {

@@ -1,6 +1,21 @@
 :root {
-  --dark-blue-font: rgb(15, 15, 117);
-  --tercoise: rgb(10, 183, 218);
-  --company-font-family: 'Serif', sans-serif;
-  --header-footer-bg-color: #d4d1d1;
-}
+  --general-background-color: white;
+  --general-font: 'Serif', sans-serif;
+  --general-word-color: #0f0f75;
+  --general-font-size: 16px;
+  --general-title-font-size: 48px;
+
+  --header-footer-background-color: #d4d1d1;
+  --header-footer-font-size: 16px;
+  --header-footer-word-color: black;
+  --header-footer-dropdown-background-color: #dddcdc;
+  --header-footer-dropdown-word-color: black;
+  --header-footer-dropdown-hover-color: #aaa7a7;
+
+  --admin-background-color: white;
+  --admin-word-color: #0f0f75;
+  --admin-sidebar-background-color: #0AB7DA;
+  --admin-sidebar-word-color: black;
+  }
+
+  

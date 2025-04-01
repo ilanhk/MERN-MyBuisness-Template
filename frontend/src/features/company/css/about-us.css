@@ -1,8 +1,8 @@
 @import '../../../general/css/globalVariables.css';
 
 .about-us{
-  color: var(--dark-blue-font);
-  font-family: var(--company-font-family);
+  color: var(--general-word-color);
+  font-family: var(--general-font);
   margin: 1%;
 }
 
