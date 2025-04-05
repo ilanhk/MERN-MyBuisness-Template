@@ -8,6 +8,7 @@ import { EnumStatus } from '../state/slice';
 import CIFormButton from '../../company/companyInfo/components/CIFormButton';
 import FormMessage from '../../../general/components/FormMessage';
 import Loader from '../../../general/components/Loader';
+import '../css/websiteStylesForms.css';
 
 const EditGeneralStylesForm = () => {
   const websiteStyles = useSelectWebsiteStyles();
@@ -80,21 +81,21 @@ const EditGeneralStylesForm = () => {
   };
 
   return (
-    <div className="ci-form-container">
-      <h3 className="ci-form-title">Update General Styles:</h3>
+    <div className="ws-form-container">
+      <h3 className="ws-form-title">Update General Styles:</h3>
       {!websiteStyles?.general ? (
         <div>
           Please go to Reset Webiste Styles
         </div>
       ) : (
-        <form className="ci-form" onSubmit={submitHandler} noValidate>
-          <div className="ci-form-with-button-and-message-section">
-            <div>
-              <h4>Title</h4>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod vel velit dolores, accusamus dolor ratione consectetur ad eligendi, amet beatae est doloremque debitis. Vel praesentium, commodi reiciendis qui ab non!</p>
-            </div>
-            <div className="ci-form-input-section">
-              <div className="ci-form-input">
+        <form className="ws-form" onSubmit={submitHandler} noValidate>
+            <div className="ws-form-input-with-example">
+              <div className='ws-example'>
+                <h4 className='ws-example-title'>Title</h4>
+                <p className='ws-example-words'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod vel velit dolores, accusamus dolor ratione consectetur ad eligendi, amet beatae est doloremque debitis. Vel praesentium, commodi reiciendis qui ab non!</p>
+              </div>
+              <div className="ws-form-input">
+                <div className='ws-color-input-form'>
                 <label htmlFor="companyName" className="ci-label">
                   BackGround Color:
                 </label>
@@ -112,14 +113,15 @@ const EditGeneralStylesForm = () => {
                 >
                   {colorList.map((color) => (
                     <option key={color} value={color}>
-                      
+                      <div>{color}</div>
                     </option>
                   ))}
                 </select>
+                </div>
               </div>
             </div>
 
-            <div className="ci-button-and-message-section">
+            <div className="ws-button-and-message-section">
               <CIFormButton text="Edit" color="primary" />
               {status === EnumStatus.Fail && (
                 <FormMessage message={isError} level="error" />
@@ -132,7 +134,7 @@ const EditGeneralStylesForm = () => {
               )}
               {status === EnumStatus.Loading && <Loader size="small" />}
             </div>
-          </div>
+      
         </form>
       )}
     </div>

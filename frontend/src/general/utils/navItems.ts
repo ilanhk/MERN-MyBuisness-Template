@@ -29,7 +29,7 @@ export const navItemsWithProducts: NavItem[] = [
 export const adminItemsNoProducts: NavItem = { name: 'Admin', path: '/admin', dropdown: [
   { name: 'Users', path: '/admin/userlist' },
   { name: 'Jobs', path: '/admin/joblist' },
-  { name: 'Edit Website', path: '/admin/editpages' },
+  { name: 'Edit Website', path: '/admin/edit/homepage' },
   ] 
 };
 
@@ -38,7 +38,7 @@ export const adminItemsWithProducts: NavItem = { name: 'Admin', path: '/admin', 
   { name: 'Users', path: '/admin/userlist' },
   { name: 'Products', path: '/admin/productlist'},
   { name: 'Jobs', path: '/admin/joblist' },
-  { name: 'Edit Website', path: '/admin/editpages' },
+  { name: 'Edit Website', path: '/admin/edit/homepage' },
   ] 
 };
 

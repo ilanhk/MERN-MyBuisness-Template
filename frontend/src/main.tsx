@@ -8,10 +8,13 @@ import {
 import { Provider } from 'react-redux';
 import { GoogleOAuthProvider } from '@react-oauth/google';  // ✅ Move GoogleOAuthProvider here
 import store from './app/store';
-import App from './App';
 
+import App from './App';
 import AdminRoute from './general/components/routes/AdminRoute';
+import CompanyEditingRoute from './general/components/routes/CompanyEditingRoute';
 import PrivateRoute from './general/components/routes/PrivateRoute';
+
+
 import HomeScreen from './general/screens/HomeScreen';
 import LoginScreen from './features/auth/LoginScreen';
 import RegisterScreen from './features/auth/RegisterScreen';
@@ -26,7 +29,12 @@ import AdminUserListScreen from './features/users/AdminUserListScreen';
 import AdminUserEditScreen from './features/users/AdminUserEditScreen';
 import AdminJobsLists from './features/company/jobs/AdminJobsLists';
 import AdminEditJob from './features/company/jobs/AdminEditJob';
-import AdminEditPagesScreen from './features/company/AdminEditPagesScreen';
+import AdminEditCompanyInfo from "./features/company/companyInfo/edit-pages-screens/AdminEditCompanyInfo";
+import AdminEditWebsiteStyles from "./features/websiteStyles/AdminEditWebsiteStyles";
+import AdminEditHomePage from "./features/company/companyInfo/edit-pages-screens/AdminEditHomePage";
+import AdminEditAboutUs from "./features/company/companyInfo/edit-pages-screens/AdminEditAboutUs";
+import AdminEditServices from "./features/company/companyInfo/edit-pages-screens/AdminEditServices";
+import AdminEditContactUs from "./features/company/companyInfo/edit-pages-screens/AdminEditContactUs";
 import AboutUsScreen from './features/company/AboutUsScreen';
 import ServicesScreen from './features/company/ServicesScreen';
 import CareersScreen from './features/company/jobs/CareersScreen';
@@ -64,7 +72,16 @@ const router = createBrowserRouter(
         <Route path="/admin/user/:id/edit" element={<AdminUserEditScreen />} />
         <Route path="/admin/joblist" element={<AdminJobsLists />} />
         <Route path="/admin/job/:id/edit" element={<AdminEditJob />} />
-        <Route path="/admin/editpages" element={<AdminEditPagesScreen />} />
+      </Route>
+
+      <Route path="" element={<CompanyEditingRoute />}>
+        <Route path="/admin/edit/homepage" element={<AdminEditHomePage />} />
+        <Route path="/admin/edit/company-info" element={<AdminEditCompanyInfo />} />
+        <Route path="/admin/edit/website-styles" element={<AdminEditWebsiteStyles />} />
+        <Route path="/admin/edit/aboutpage" element={<AdminEditAboutUs />} />
+        <Route path="/admin/edit/services" element={<AdminEditServices />} />
+        <Route path="/admin/edit/contactpage" element={<AdminEditContactUs />} />
+        
       </Route>
     </Route>
   )

@@ -1,0 +1,6 @@
+/* .c-editing-route-container{}; */
+
+.c-editing-sidebar-with-outlet{
+  display: flex;
+  flex-direction: row;
+};

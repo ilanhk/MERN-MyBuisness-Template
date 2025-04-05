@@ -12,6 +12,7 @@ import FormMessage from '../../general/components/FormMessage';
 import EditGeneralStylesForm from './components/EditGeneralStylesForm';
 import EditHeaderFooterStylesForm from './components/EditHeaderFooterStylesForm';
 import EditAdminStylesForm from './components/EditAdminStylesForm';
+import './css/websiteStylesForms.css';
 
 const AdminEditWebsiteStyles = () => {
   const createWebsiteStylesHook = useCreateWebsiteStyles();
@@ -58,10 +59,10 @@ const AdminEditWebsiteStyles = () => {
   };
 
   return (
-    <div className="ci-form-container">
-      <h2 className="ci-formScreen-title">Edit Website Styles</h2>
+    <div className="ws-form-screen-container">
+      <h2 className="ws-formScreen-title">Edit Website Styles</h2>
       <div className="add-reset-form">
-        <h3 className="ci-form-title">Reset All Website Styles:</h3>
+        <h3 className="ws-form-title">Reset All Website Styles:</h3>
         <CIFormButton
           text={isLoading ? 'Processing...' : 'Reset'}
           color="primary"
