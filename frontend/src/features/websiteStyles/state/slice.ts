@@ -58,7 +58,7 @@ const initialState: websiteStylesStateType = {
   styles: {
     _id: '',
     general: {
-      backgroundColor: 'white',
+      backgroundColor: '#ffffff',
       font: "'Serif', sans-serif",
       wordColor: '#0f0f75',
       wordSize: '16px',

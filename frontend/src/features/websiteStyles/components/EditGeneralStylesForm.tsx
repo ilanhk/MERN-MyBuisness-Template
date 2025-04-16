@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   useSelectWebsiteStyles,
   useSelectWebsiteStylesStatus,
-  useUpdateWebsiteStyles
+  useUpdateWebsiteStyles,
 } from '../state/hooks';
 import { EnumStatus } from '../state/slice';
 import CIFormButton from '../../company/companyInfo/components/CIFormButton';
@@ -15,23 +15,21 @@ const EditGeneralStylesForm = () => {
   const updateWebsiteStylesHook = useUpdateWebsiteStyles();
   const status = useSelectWebsiteStylesStatus();
 
-  const { backgroundColor, font, wordColor, wordSize, titleSize } = websiteStyles.general;
+  const { backgroundColor, font, wordColor, wordSize, titleSize } =
+    websiteStyles.general;
   const { colors, fonts } = websiteStyles.saves;
-  
 
   const [bgColor, setBgColor] = useState<string | null>(backgroundColor || '');
   const [fontFamily, setFontFamily] = useState<string | null>(font || '');
   const [wColor, setWColor] = useState<string | null>(wordColor || '');
-  const [wSize, setWSize] = useState<string | null>( wordSize|| '');
+  const [wSize, setWSize] = useState<string | null>(wordSize || '');
   const [tSize, setTSize] = useState<string | null>(titleSize || '');
 
   const [colorList, setColorList] = useState<string[] | null>(colors || []);
   const [fontList, setFontList] = useState<string[] | null>(fonts || []);
- 
 
   const [isError, setIsError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
-
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,7 +45,7 @@ const EditGeneralStylesForm = () => {
       saves: {
         colors: colorList,
         fonts: fontList,
-      }
+      },
     };
 
     try {
@@ -59,7 +57,6 @@ const EditGeneralStylesForm = () => {
         websiteStyles?._id,
         dataToUpdate
       );
-    
 
       if (status === EnumStatus.Fail) {
         throw new Error('This is not working');
@@ -84,18 +81,21 @@ const EditGeneralStylesForm = () => {
     <div className="ws-form-container">
       <h3 className="ws-form-title">Update General Styles:</h3>
       {!websiteStyles?.general ? (
-        <div>
-          Please go to Reset Webiste Styles
-        </div>
+        <div>Please go to Reset Webiste Styles</div>
       ) : (
         <form className="ws-form" onSubmit={submitHandler} noValidate>
-            <div className="ws-form-input-with-example">
-              <div className='ws-example'>
-                <h4 className='ws-example-title'>Title</h4>
-                <p className='ws-example-words'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod vel velit dolores, accusamus dolor ratione consectetur ad eligendi, amet beatae est doloremque debitis. Vel praesentium, commodi reiciendis qui ab non!</p>
-              </div>
-              <div className="ws-form-input">
-                <div className='ws-color-input-form'>
+          <div className="ws-form-input-with-example">
+            <div className="ws-example" style={{ backgroundColor: bgColor, fontFamily: fontFamily, color: wColor }}>
+              <h4 className="ws-example-title" style={{ fontSize: tSize}}>Title</h4>
+              <p className="ws-example-words" style={{ fontSize: wSize}}>
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod
+                vel velit dolores, accusamus dolor ratione consectetur ad
+                eligendi, amet beatae est doloremque debitis. Vel praesentium,
+                commodi reiciendis qui ab non!
+              </p>
+            </div>
+            <div className="ws-form-input">
+              <div className="ws-color-input-form">
                 <label htmlFor="companyName" className="ci-label">
                   BackGround Color:
                 </label>
@@ -117,24 +117,23 @@ const EditGeneralStylesForm = () => {
                     </option>
                   ))}
                 </select>
-                </div>
               </div>
             </div>
+          </div>
 
-            <div className="ws-button-and-message-section">
-              <CIFormButton text="Edit" color="primary" />
-              {status === EnumStatus.Fail && (
-                <FormMessage message={isError} level="error" />
-              )}
-              {isSuccess && (
-                <FormMessage
-                  message="Name, Logo and Company Type Updated!"
-                  level="success"
-                />
-              )}
-              {status === EnumStatus.Loading && <Loader size="small" />}
-            </div>
-      
+          <div className="ws-button-and-message-section">
+            <CIFormButton text="Edit" color="primary" />
+            {status === EnumStatus.Fail && (
+              <FormMessage message={isError} level="error" />
+            )}
+            {isSuccess && (
+              <FormMessage
+                message="Name, Logo and Company Type Updated!"
+                level="success"
+              />
+            )}
+            {status === EnumStatus.Loading && <Loader size="small" />}
+          </div>
         </form>
       )}
     </div>
