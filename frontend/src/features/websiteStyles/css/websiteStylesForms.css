@@ -2,7 +2,8 @@
 
 /* Page wrapper */
 .ws-form-screen-container {
-  width: 100%;
+  max-width: 100%;
+  min-width: 300px;
   min-height: 100vh;
   padding: 2rem;
   display: flex;
@@ -26,11 +27,37 @@
 }
 
 
-.ws-color-input-form {
+.ws-color-input-form, .ws-font-input-form, .ws-size-input {
   display: flex;
   flex-direction: row;
   gap: 1rem; /* or however much space you want between items */
   height: 2rem;
   width: 100%; /* or a wider value if you want to control the layout */
   margin-top: 2%;
+  margin-bottom: 2%;
 }
+
+
+
+.ws-save-button {
+  padding: 0.25% 0.5%;
+  font-size: 9px;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ws-save-button:hover {
+  background-color: #0056b3;
+}
+
+.ws-save-button:active {
+  transform: scale(0.95);
+}
+

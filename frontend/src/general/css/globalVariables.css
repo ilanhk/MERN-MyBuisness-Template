@@ -1,5 +1,5 @@
 :root {
-  --general-background-color: white;
+  --general-background-color: #ffffff;
   --general-font: 'Serif', sans-serif;
   --general-word-color: #0f0f75;
   --general-font-size: 16px;
@@ -17,5 +17,3 @@
   --admin-sidebar-background-color: #0AB7DA;
   --admin-sidebar-word-color: black;
   }
-
-  

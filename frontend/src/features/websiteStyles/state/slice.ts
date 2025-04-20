@@ -67,24 +67,34 @@ const initialState: websiteStylesStateType = {
     headerAndFooter: {
       backgroundColor: '#d4d1d1',
       fontSize: '16px',
-      wordColor: 'black',
+      wordColor: '#000000',
       dropdown: {
         backgroundColor: '#dddcdc',
-        wordColor: 'black',
+        wordColor: '#000000',
         hoverColor: '#aaa7a7',
       },
     },
     admin: {
-      backgroundColor: 'white',
+      backgroundColor: '#ffffff',
       wordColor: '#0f0f75',
       sideBar: {
         backgroundColor: '#0AB7DA',
-        wordColor: 'black',
+        wordColor: '#000000',
       },
     },
     saves: {
-      colors: [],
-      fonts: [],
+      colors: [
+        '#ffffff',
+        '#0f0f75',
+        '#d4d1d1',
+        '#000000',
+        '#dddcdc',
+        '#aaa7a7',
+        '#0AB7DA'
+      ],
+      fonts: [
+        "'Serif', sans-serif"
+      ],
     },
    
   },
