@@ -108,11 +108,11 @@ const EditGeneralStylesForm = () => {
 
       if (status === EnumStatus.Success) {
         setIsSuccess(true);
-        console.log('Company info updated!');
+        console.log('general website styles updated!');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error('Error updating company info:', error.message);
+        console.error('Error updating general website styles:', error.message);
         setIsError(error.message);
       } else {
         console.error('Unexpected error:', error);
@@ -264,7 +264,7 @@ const EditGeneralStylesForm = () => {
             )}
             {isSuccess && (
               <FormMessage
-                message="Name, Logo and Company Type Updated!"
+                message="General Styles Updated!"
                 level="success"
               />
             )}

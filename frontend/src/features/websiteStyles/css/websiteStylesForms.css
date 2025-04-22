@@ -26,6 +26,12 @@
   margin-bottom: 1%;
 }
 
+.ws-form-input-with-example-sidebar{
+  display: flex;
+  flex-direction: row;
+  gap: 0.7%;
+}
+
 
 .ws-color-input-form, .ws-font-input-form, .ws-size-input {
   display: flex;
