@@ -19,7 +19,7 @@ const EditGeneralStylesForm = () => {
   const updateWebsiteStylesHook = useUpdateWebsiteStyles();
   const status = useSelectWebsiteStylesStatus();
 
-  console.log('webiste', websiteStyles)
+  console.log('webiste', websiteStyles);
 
   const { backgroundColor, font, wordColor, wordSize, titleSize } =
     websiteStyles.general;
@@ -36,6 +36,14 @@ const EditGeneralStylesForm = () => {
 
   const [isError, setIsError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleReset = () => {
+    setBgColor('#ffffff');
+    setFontFamily("'Serif', sans-serif");
+    setWColor('#0f0f75');
+    setWSize('16px');
+    setTSize('48px');
+  };
 
   const handleSave = async (
     savedValue: string | null,
@@ -62,7 +70,7 @@ const EditGeneralStylesForm = () => {
       },
     };
 
-    console.log('website styles id: ', websiteStyles?._id )
+    console.log('website styles id: ', websiteStyles?._id);
 
     try {
       await updateWebsiteStylesHook(websiteStyles?._id, dataToUpdate);
@@ -171,7 +179,7 @@ const EditGeneralStylesForm = () => {
                   id="bgcolorlist"
                   value={bgColor}
                   onChange={(e) => setBgColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: bgColor}} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: bgColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -200,7 +208,7 @@ const EditGeneralStylesForm = () => {
                   id="wordcolorlist"
                   value={wColor}
                   onChange={(e) => setWColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: wColor}} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: wColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -258,15 +266,19 @@ const EditGeneralStylesForm = () => {
           </div>
 
           <div className="ws-button-and-message-section">
-            <CIFormButton text="Edit" color="primary" />
+            <div className="ws-form-buttons">
+              <CIFormButton text="Edit" color="primary" />
+              <CIFormButton
+                text="Reset"
+                color="success"
+                onClick={handleReset}
+              />
+            </div>
             {status === EnumStatus.Fail && (
               <FormMessage message={isError} level="error" />
             )}
             {isSuccess && (
-              <FormMessage
-                message="General Styles Updated!"
-                level="success"
-              />
+              <FormMessage message="General Styles Updated!" level="success" />
             )}
             {status === EnumStatus.Loading && <Loader size="small" />}
           </div>

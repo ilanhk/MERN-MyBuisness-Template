@@ -43,6 +43,10 @@
   margin-bottom: 2%;
 }
 
+.add-reset-form{
+  padding-bottom: 2%;
+}
+
 
 
 .ws-save-button {
@@ -66,4 +70,24 @@
 .ws-save-button:active {
   transform: scale(0.95);
 }
+
+.ws-example-navbar {
+  display: flex;
+  flex-direction: row;
+  width: 32rem;
+}
+
+.ws-button-and-message-section{
+  width: 40%;
+}
+
+.ws-form-buttons{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-bottom: 2%;
+}
+
+
+
 

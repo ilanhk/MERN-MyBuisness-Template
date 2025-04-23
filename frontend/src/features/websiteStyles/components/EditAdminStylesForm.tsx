@@ -11,46 +11,50 @@ import Loader from '../../../general/components/Loader';
 import SaveButton from './SaveButton';
 import '../css/websiteStylesForms.css';
 
+
 const EditAdminStylesForm = () => {
   const websiteStyles = useSelectWebsiteStyles();
   const updateWebsiteStylesHook = useUpdateWebsiteStyles();
   const status = useSelectWebsiteStylesStatus();
 
-  console.log('webiste admin edit', websiteStyles)
 
-  const { backgroundColor,  wordColor, sideBar } =
-    websiteStyles.admin;
+  console.log('webiste admin edit', websiteStyles);
+  console.log('status getwebsite styles: ', status)
+
+  const { backgroundColor, wordColor, sideBar } = websiteStyles.admin;
   const { colors, fonts } = websiteStyles.saves;
 
   const [bgColor, setBgColor] = useState<string | null>(backgroundColor || '');
   const [wColor, setWColor] = useState<string | null>(wordColor || '');
-  const [sideBarBGColor, setSideBarBGColor] = useState<string | null>(sideBar.backgroundColor || '');
-  const [sideBarWColor, setsideBarWColor] = useState<string | null>(sideBar.wordColor || '');
+  const [sideBarBGColor, setSideBarBGColor] = useState<string | null>(
+    sideBar.backgroundColor || ''
+  );
+  const [sideBarWColor, setsideBarWColor] = useState<string | null>(
+    sideBar.wordColor || ''
+  );
 
   const [colorList, setColorList] = useState<string[] | null>(colors || []);
 
   const [isError, setIsError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleReset = ()=>{
+  const handleReset = () => {
     setBgColor('#ffffff');
     setWColor('#0f0f75');
     setSideBarBGColor('#0AB7DA');
     setsideBarWColor('#000000');
-  }
+  };
 
-  const handleSave = async (savedValue: string | null,) => {
-
+  const handleSave = async (savedValue: string | null) => {
     if (colorList.includes(savedValue)) return;
 
     const updatedList = [...colorList, savedValue];
     setColorList(updatedList);
 
-
     const dataToUpdate = {
       saves: {
         colors: updatedList,
-        fonts: fonts
+        fonts: fonts,
       },
     };
 
@@ -75,7 +79,7 @@ const EditAdminStylesForm = () => {
       admin: {
         backgroundColor: bgColor,
         wordColor: wColor,
-        sideBar:{
+        sideBar: {
           backgroundColor: sideBarBGColor,
           wordColor: sideBarWColor,
         },
@@ -121,7 +125,7 @@ const EditAdminStylesForm = () => {
               style={{
                 backgroundColor: sideBarBGColor,
                 color: sideBarWColor,
-                width: '9rem'
+                width: '9rem',
               }}
             >
               <h2
@@ -133,11 +137,14 @@ const EditAdminStylesForm = () => {
               >
                 SideBarTitle
               </h2>
-              <p className="ws-example-words" style={{ fontWeight: 'bold'}}>
+              <p className="ws-example-words" style={{ fontWeight: 'bold' }}>
                 sidebar option
               </p>
             </div>
-            <div className="ws-form-input" style={{ backgroundColor: bgColor, color: wColor,}}>
+            <div
+              className="ws-form-input"
+              style={{ backgroundColor: bgColor, color: wColor }}
+            >
               <div className="ws-color-input-form">
                 <label htmlFor="bgColor" className="ws-label">
                   Admin BackGround Color:
@@ -154,7 +161,7 @@ const EditAdminStylesForm = () => {
                   id="bgcolorlist"
                   value={bgColor}
                   onChange={(e) => setBgColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: bgColor}} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: bgColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -183,7 +190,7 @@ const EditAdminStylesForm = () => {
                   id="wordcolorlist"
                   value={wColor}
                   onChange={(e) => setWColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: wColor}} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: wColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -210,9 +217,9 @@ const EditAdminStylesForm = () => {
                 <p>or</p>
                 <select
                   id="sbbgcolorlist"
-                  value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: bgColor}} // Set dropdown width here
+                  value={sideBarBGColor}
+                  onChange={(e) => setSideBarBGColor(e.target.value)}
+                  style={{ width: '100px', backgroundColor: sideBarBGColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -241,7 +248,7 @@ const EditAdminStylesForm = () => {
                   id="sbwordcolorlist"
                   value={wColor}
                   onChange={(e) => setsideBarWColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: wColor}} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: wColor }} // Set dropdown width here
                 >
                   {colorList.map((color) => (
                     <option
@@ -254,21 +261,23 @@ const EditAdminStylesForm = () => {
                   ))}
                 </select>
               </div>
-              
             </div>
           </div>
 
           <div className="ws-button-and-message-section">
-            <CIFormButton text="Edit" color="primary" />
-            <CIFormButton text="Reset" color="error" onClick={handleReset} />
+            <div className="ws-form-buttons">
+              <CIFormButton text="Edit" color="primary" />
+              <CIFormButton
+                text="Reset"
+                color="success"
+                onClick={handleReset}
+              />
+            </div>
             {status === EnumStatus.Fail && (
               <FormMessage message={isError} level="error" />
             )}
             {isSuccess && (
-              <FormMessage
-                message="Admin Styles Updated!"
-                level="success"
-              />
+              <FormMessage message="Admin Styles Updated!" level="success" />
             )}
             {status === EnumStatus.Loading && <Loader size="small" />}
           </div>
@@ -276,6 +285,6 @@ const EditAdminStylesForm = () => {
       )}
     </div>
   );
-}
+};
 
 export default EditAdminStylesForm;

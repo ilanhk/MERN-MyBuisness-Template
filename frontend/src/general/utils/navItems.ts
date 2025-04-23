@@ -42,3 +42,13 @@ export const adminItemsWithProducts: NavItem = { name: 'Admin', path: '/admin', 
   ] 
 };
 
+
+export const navItemsForEditingExample = [
+  { name: 'Products' },
+  { name: 'Company', dropdown: [
+    { name: 'About us' },
+    { name: 'Contact us' }
+  ] 
+},
+];
+

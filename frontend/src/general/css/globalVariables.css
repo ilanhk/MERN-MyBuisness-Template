@@ -7,13 +7,13 @@
 
   --header-footer-background-color: #d4d1d1;
   --header-footer-font-size: 16px;
-  --header-footer-word-color: black;
+  --header-footer-word-color: #000000;
   --header-footer-dropdown-background-color: #dddcdc;
-  --header-footer-dropdown-word-color: black;
+  --header-footer-dropdown-word-color: #000000;
   --header-footer-dropdown-hover-color: #aaa7a7;
 
-  --admin-background-color: white;
+  --admin-background-color: #ffffff;
   --admin-word-color: #0f0f75;
-  --admin-sidebar-background-color: #0AB7DA;
-  --admin-sidebar-word-color: black;
+  --admin-sidebar-background-color: #0a9ddb;
+  --admin-sidebar-word-color: #000000;
   }

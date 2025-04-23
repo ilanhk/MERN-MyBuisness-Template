@@ -4,15 +4,18 @@ import { ToastContainer } from 'react-toastify';
 import { IndDB } from './general/utils/indexedDB';
 import { useRefresh, useLogout } from './features/auth/state/hooks';
 import { useGetCompanyInfo } from './features/company/companyInfo/state/hooks';
+import { useGetWebsiteStyles } from './features/websiteStyles/state/hooks';
 import Header from './general/components/Header';
 import Footer from './general/components/Footer';
 import './App.css';
+
 
 function App() {
   const indexedDB = IndDB.instance;
   const refreshHook = useRefresh();
   const logoutHook = useLogout();
   const getCompanyInfoHook = useGetCompanyInfo();
+  const getWebsiteStylesHook = useGetWebsiteStyles();
 
   useEffect(() => {
     const getRefreshTokenAndLogin = async () => {
@@ -32,8 +35,14 @@ function App() {
       console.log(companyInfo.payload);
     };
 
+    const getWebsiteStyles = async () => {
+      const styles = await getWebsiteStylesHook();
+      console.log(styles.payload);
+    };
+
     getRefreshTokenAndLogin();
     getCompanyInfo();
+    getWebsiteStyles();
   }, [refreshHook, logoutHook, getCompanyInfoHook]);
 
   return (
