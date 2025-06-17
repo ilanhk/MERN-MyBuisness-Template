@@ -39,6 +39,7 @@ import AboutUsScreen from './features/company/AboutUsScreen';
 import ServicesScreen from './features/company/ServicesScreen';
 import CareersScreen from './features/company/jobs/CareersScreen';
 import ContactUsScreen from './features/company/ContactUsScreen';
+import AdminCreateUsersScreen from './features/users/AdminCreateUsersScreen';
 import './App.css';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID!;
@@ -72,6 +73,7 @@ const router = createBrowserRouter(
         <Route path="/admin/user/:id/edit" element={<AdminUserEditScreen />} />
         <Route path="/admin/joblist" element={<AdminJobsLists />} />
         <Route path="/admin/job/:id/edit" element={<AdminEditJob />} />
+        <Route path="/admin/users/create" element={<AdminCreateUsersScreen />} />
       </Route>
 
       <Route path="" element={<CompanyEditingRoute />}>

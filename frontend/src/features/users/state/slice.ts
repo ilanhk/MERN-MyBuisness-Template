@@ -43,12 +43,14 @@ const initialState: UserStateType = {
 export const getUsers = createAsyncThunk(
   'user/getUsers',
   async () => {
-    const response = await axios.get(
-      `${BASE_URL}/users`,
-    );
+    const response = await axios.get(`${BASE_URL}/users`, {
+      withCredentials: true, // <-- THIS sends the cookies!
+    });
+
     return response.data;
   }
 );
+
 
 export const getUserById = createAsyncThunk(
   'user/getUserById',

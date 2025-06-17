@@ -1,19 +1,14 @@
-
 import { memo } from 'react';
 import SaveAltOutlinedIcon from '@mui/icons-material/SaveAltOutlined';
-import '../css/websiteStylesForms.css'
-
+import '../css/websiteStylesForms.css';
 
 interface SaveButtonProps {
-  onClick: () => void; 
+  onClick: () => void;
 }
 
 const SaveButton = ({ onClick }: SaveButtonProps) => {
   return (
-    <button
-    className="ws-save-button" 
-    onClick={onClick}
-    >
+    <button type="button" className="ws-save-button" onClick={onClick}>
       <SaveAltOutlinedIcon />
     </button>
   );

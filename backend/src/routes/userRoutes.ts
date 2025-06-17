@@ -25,7 +25,7 @@ router.post('/logout', logoutUser);
 
 router.post('/login', loginUser);
 
-router.route('/profile').get(protect, getUserProfile).put(protect, updateUserProfile);
+router.route('/profile').get(protect, getUserProfile).put(protect, admin, updateUserProfile);
 
 router.route('/forgot-password').post(forgotPassword);
 

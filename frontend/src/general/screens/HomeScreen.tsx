@@ -12,14 +12,12 @@ const HomeScreen = () => {
       <HeroBlock />
       {hasProducts && <h3>Carosel of categories with top products</h3>}
       {isEcommerce && <h3>Carosel of Deals or Best selling Products</h3>}
+
+      <h3>Services section</h3>
       <CustomerSection />
       
       
-      
       <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-      <h3>Call to action button</h3>
-     
 
     </div>
   )

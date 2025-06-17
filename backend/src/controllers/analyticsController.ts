@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import User from "../models/userModel";
-import ProductClicked from '../models/ProductClickedModel';
+import ProductClicked from '../models/productClickedModel';
 import WebTraffic from '../models/webTrafficModel';
 
 

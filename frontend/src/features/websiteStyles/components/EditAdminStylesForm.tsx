@@ -11,15 +11,10 @@ import Loader from '../../../general/components/Loader';
 import SaveButton from './SaveButton';
 import '../css/websiteStylesForms.css';
 
-
 const EditAdminStylesForm = () => {
   const websiteStyles = useSelectWebsiteStyles();
   const updateWebsiteStylesHook = useUpdateWebsiteStyles();
   const status = useSelectWebsiteStylesStatus();
-
-
-  console.log('webiste admin edit', websiteStyles);
-  console.log('status getwebsite styles: ', status)
 
   const { backgroundColor, wordColor, sideBar } = websiteStyles.admin;
   const { colors, fonts } = websiteStyles.saves;
@@ -219,7 +214,7 @@ const EditAdminStylesForm = () => {
                   id="sbbgcolorlist"
                   value={sideBarBGColor}
                   onChange={(e) => setSideBarBGColor(e.target.value)}
-                  style={{ width: '100px', backgroundColor: sideBarBGColor }} // Set dropdown width here
+                  style={{ width: '100px', backgroundColor: sideBarBGColor }} 
                 >
                   {colorList.map((color) => (
                     <option

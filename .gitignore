@@ -12,6 +12,9 @@
 **/dist-ssr
 **.local
 
+**Dockerfile
+**nginx.conf
+
 # Editor directories and files
 **.vscode/*
 **!.vscode/extensions.json
@@ -25,3 +28,4 @@
 **.env
 **package-lock.json
 **nodemon.json
+

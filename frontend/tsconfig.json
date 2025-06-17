@@ -1,11 +1,8 @@
 {
   "files": [],
-  "references": [
-    { "path": "../backend/tsconfig.json" }
-  ],
   "include": ["src/**/*", "declarations.d.ts"],
   "compilerOptions": {
-    "module": "esnext",  // Or "es2020", "es2022", "node16", etc.
+    "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
@@ -16,5 +13,6 @@
     }
   }
 }
+
 
 

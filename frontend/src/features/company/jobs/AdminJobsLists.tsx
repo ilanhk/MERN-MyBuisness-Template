@@ -3,7 +3,7 @@ import { useSelectJobs, useCreateJob, useGetJobs } from "./state/hooks";
 import { useNavigate } from "react-router-dom";
 import { JobState } from "./state/slice";
 import CIFormButton from "../companyInfo/components/CIFormButton";
-import AdminTable from "../companyInfo/components/AdminTable";
+
 import './css/adminJobsList.css';
 
 const columns: GridColDef[] = [
@@ -61,19 +61,7 @@ const AdminJobsLists = () => {
         />
       </div>
 
-      <div>
-        <h3>List of Current Jobs:</h3>
-        <AdminTable />
-        {jobsState.length > 0 ? (
-          jobsState.map((j, index) => {
-            return <p key={j._id || index}>{j.name}</p>
-          }
-            
-)
-        ) : (
-          <p>No Jobs Created</p>
-        )}
-      </div>
+      
     </div>
   )
 };

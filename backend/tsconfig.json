@@ -11,8 +11,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "composite": true,
-
+    "composite": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*"],
   "exclude": ["node_modules"]
