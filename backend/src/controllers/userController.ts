@@ -144,6 +144,7 @@ const registerUser = async (req: Request, res: Response) => {
     await user.save();
 
     await redisClient.set(`user:${userId}`, JSON.stringify(user), { EX: redis_expiry });
+    await redisClient.del('users');
 
     return res.status(201).json({
       _id: user._id,
@@ -239,6 +240,7 @@ const updateUserProfile = async (req: Request, res: Response) => {
     const updatedUser = await user.save();
 
     await redisClient.set(`user:${req.user?._id}`, JSON.stringify(updatedUser), { EX: redis_expiry });
+    await redisClient.del('users');
 
     return res.status(200).json({
       _id: updatedUser._id,
@@ -251,6 +253,73 @@ const updateUserProfile = async (req: Request, res: Response) => {
     });
   } else {
     return res.status(404).json({ message: 'User not found' });
+  }
+};
+
+// @desc Create new user (without login)
+// @route POST /api/users/create
+// @access Public
+const createNewUser = async (req: Request, res: Response) => {
+  const { firstName, lastName, email, password, isEmployee, inEmailList } =
+    req.body;
+
+  if (!firstName && !lastName) {
+    return res.status(400).json({ message: 'Please add first and last names' }); //400 is client error, they did something wrong
+  }
+
+  const isPasswordVerified = verifyPassword(password);
+  if (!isPasswordVerified) {
+    return res.status(400).json({
+      message: `
+            The Password does not match these requirements:
+                
+            1. It exists (not empty or undefined)
+            2. It has a length of at least 12 characters
+            3. It contains at least one uppercase letter
+            4. It contains at least one lowercase letter
+            5. It contains at least one number (0-9)
+            6. It contains at least one special character
+        `,
+    });
+  }
+
+  const userExists = await User.findOne({ email });
+  if (userExists) {
+    return res.status(400).json({ message: 'User already exists' });
+  }
+
+  const fullName = `${firstName} ${lastName}`;
+
+  const user = await User.create({
+    firstName,
+    lastName,
+    fullName,
+    email,
+    password,
+    isEmployee,
+    inEmailList,
+  });
+
+  if (user) {
+    const userId = user._id + '';
+    await user.save();
+
+    await redisClient.set(`user:${userId}`, JSON.stringify(user), { EX: redis_expiry });
+    await redisClient.del('users');
+
+    return res.status(201).json({
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      fullName: user.fullName,
+      email: user.email,
+      isEmployee: user.isEmployee,
+      isAdmin: user.isAdmin,
+      isSuperAdmin: user.isSuperAdmin,
+      inEmailList: user.inEmailList,
+    });
+  } else {
+    return res.status(400).json({ message: 'Invalid user data' });
   }
 };
 
@@ -302,6 +371,7 @@ const updateUser = async (req: Request, res: Response) => {
 
     const updatedUser = await user.save();
     await redisClient.set(`user:${userId}`, JSON.stringify(updatedUser), { EX: redis_expiry });
+    await redisClient.del('users');
 
     return res.status(200).json({
       _id: updatedUser._id,
@@ -414,7 +484,7 @@ const deleteUser = async (req: Request, res: Response) => {
 
 
   if (user) {
-    if (user.isAdmin) {
+    if (user.isSuperAdmin) {
       return res.status(400).json({ message: 'Cannot delete admin user' });
     }
     
@@ -435,6 +505,7 @@ export {
   logoutUser,
   getUserProfile,
   updateUserProfile,
+  createNewUser,
   getUsers,
   getUserById,
   updateUser,

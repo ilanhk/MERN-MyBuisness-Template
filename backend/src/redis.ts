@@ -9,7 +9,7 @@ const client = createClient({
     port: Number(process.env.REDIS_PORT) || 6379,
     timeout: 10000,
   },
-  password: process.env.REDIS_PASSWORD, 
+  // password: process.env.REDIS_PASSWORD, 
 });
 
 client.on('error', (err) => {

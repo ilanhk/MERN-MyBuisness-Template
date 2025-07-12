@@ -49,6 +49,7 @@ export const useRegister = () => {
       email: string,
       inEmailList: boolean,
       password?: string,
+      isEmployee?: boolean,
       
     ) => {
       return dispatch(register({
@@ -57,7 +58,8 @@ export const useRegister = () => {
         fullName,
         email,
         password,
-        inEmailList
+        inEmailList,
+        isEmployee
       }));
     },
     [dispatch]

@@ -8,9 +8,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # volumes:
+    #   - ./backend:/app
+    #   - /app/node_modules # --uncomment this for production
     env_file:
       - ./backend/.env
     depends_on:

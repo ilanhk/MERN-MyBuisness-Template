@@ -1,7 +1,8 @@
 {
-  "files": [],
   "include": ["src/**/*", "declarations.d.ts"],
   "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["DOM", "DOM.Iterable", "ES2017"],
     "module": "esnext",
     "moduleResolution": "node",
     "jsx": "react-jsx",
@@ -10,9 +11,12 @@
     "baseUrl": "./",
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   }
 }
+
 
 
 

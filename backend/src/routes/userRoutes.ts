@@ -6,6 +6,7 @@ import {
     logoutUser,
     getUserProfile,
     updateUserProfile,
+    createNewUser,
     getUsers,
     getUserById,
     updateUser,
@@ -31,8 +32,8 @@ router.route('/forgot-password').post(forgotPassword);
 
 router.route('/reset-password').post(resetPassword);
 
-router.route('/:id').delete(protect, superAdmin, deleteUser).get(protect, getUserById).put(protect, admin, updateUser);
+router.route('/:id').delete(protect, admin, deleteUser).get(protect, getUserById).put(protect, admin, updateUser);
 
-
+router.post('/create', protect, admin, createNewUser);
 
 export default router;

@@ -6,10 +6,10 @@ import "./css/AdminCreateUsersScreen.css";
 const AdminCreateUsersScreen = () => {
   return (
     <div className="create-users-screen-container">
-      <h2>Admin Create User(s)</h2>
+      <h1>Admin Create User(s)</h1>
       <AddListOfUsersForm />
 
-      <h4>Or</h4>
+      <h2>Or</h2>
 
       <CreateUserForm />
 

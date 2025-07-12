@@ -1,7 +1,12 @@
+@import '../../../general/css/globalVariables.css';
+
 .create-users-screen-container{
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 2%;
   margin-bottom: 2%;
+  font-family: var(--general-font);
+  color: var(--admin-word-color);
+  background-color: var(--admin-background-color);
 }

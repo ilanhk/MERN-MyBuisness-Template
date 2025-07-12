@@ -1,5 +1,8 @@
 import { useState } from "react";
+import { Link } from 'react-router-dom';
+import CIFormButton from "../../features/company/companyInfo/components/CIFormButton";
 import '../css/AdminTable.css';
+
 
 interface Attributes {
   name: string;
@@ -9,9 +12,11 @@ interface Attributes {
 interface AdminTableProps {
   dataSet: any[];
   columns: Attributes[];
+  route: string;
+  deleteHook: (id: string) => void;
 }
 
-const AdminTable = ({ dataSet, columns }: AdminTableProps) => {
+const AdminTable = ({ dataSet, columns, route, deleteHook }: AdminTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -25,19 +30,21 @@ const AdminTable = ({ dataSet, columns }: AdminTableProps) => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
+
+
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = dataSet.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <div className="table-container">
-      <table border={1} cellPadding={10}>
+      <table>
         <thead>
           <tr>
             {columns.map((col) => (
               <th key={col.name}>{col.name}</th>
             ))}
-            <th >Edit</th>
-            <th >Delete</th>
+            <th>Edit</th>
+            <th>Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -47,26 +54,30 @@ const AdminTable = ({ dataSet, columns }: AdminTableProps) => {
                 {columns.map((col) => (
                   <td key={col.attribute}>{data[col.attribute]}</td>
                 ))}
-                  <td>Edit</td>
-                  <td>Delete</td>
+                <td>
+                  <Link to={`${route}/${data._id}/edit`}>
+                    <CIFormButton text="Edit" color="primary"/>
+                  </Link>
+                </td>
+                <td>
+                  <CIFormButton text="Delete" color="error" onClick={async ()=>{ deleteHook(data._id)}}/>
+                </td>
               </tr>
             ))
-            
           ) : (
             <tr>
-              <td colSpan={columns.length}>No results found.</td>
+              <td colSpan={columns.length + 2}>No results found.</td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* Pagination controls */}
       {dataSet.length > rowsPerPage && (
-        <div style={{ marginTop: "10px" }}>
+        <div className="pagination-controls">
           <button onClick={handlePrevPage} disabled={currentPage === 1}>
             Previous
           </button>
-          <span style={{ margin: "0 10px" }}>
+          <span>
             Page {currentPage} of {totalPages}
           </span>
           <button onClick={handleNextPage} disabled={currentPage === totalPages}>

@@ -9,7 +9,7 @@ if (!process.env.AWS_BUCKET) {
   throw new Error("AWS_BUCKET is not defined in the environment variables.");
 }
 
-const allowedExtensions = [".png", ".jpg", ".jpeg", ".pdf"]; // Add more extensions as needed
+const allowedExtensions = [".png", ".jpg", ".jpeg", ".pdf", ".csv"];; // Add more extensions as needed
 
 export const upload = multer({
   storage: multerS3({

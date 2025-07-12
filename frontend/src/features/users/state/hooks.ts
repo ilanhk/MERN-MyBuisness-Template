@@ -1,8 +1,37 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../../app/store";
-import { getUsers, getUserById, updateUser, deleteUser, UserState } from "./slice";
+import { createUser, getUsers, getUserById, updateUser, deleteUser, UserState } from "./slice";
 import { selectUsers, selectUsersStatus } from "./selectors";
+
+
+//create user without login
+//register
+export const useCreateUser = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  return useCallback(
+    (firstName: string,
+      lastName: string,
+      fullName: string,
+      email: string,
+      inEmailList: boolean,
+      password?: string,
+      isEmployee?: boolean,
+      
+    ) => {
+      return dispatch(createUser({
+        firstName,
+        lastName,
+        fullName,
+        email,
+        password,
+        inEmailList,
+        isEmployee
+      }));
+    },
+    [dispatch]
+  );
+};
 
 //get users
 export const useSelectUsers = ()=>{
