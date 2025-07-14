@@ -1,4 +1,5 @@
 import Alert from '@mui/material/Alert';
+import '../css/FormMessage.css';
 
 interface FormMessageProps {
   message: string;
@@ -7,7 +8,7 @@ interface FormMessageProps {
 
 const FormMessage = ({ message, level }: FormMessageProps) => {
   return (
-    <Alert severity={level}>
+    <Alert severity={level} className="form-alert">
       {message}
     </Alert>
   );

@@ -1,10 +1,25 @@
-.add-button{
-  color: blue;
-  border: none;    /* this removes the border */
-  background: none; /* optional: removes background if you want it transparent */
-  cursor: pointer; /* optional: makes it look clickable */
+.add-button {
+  width: 56px; /* or 48px, 64px, depending on desired size */
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #1976d2; /* MUI primary blue */
+  color: white;
+  border: none;
+  border-radius: 8px; /* subtle rounding for a modern square look */
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2%;
 }
 
 .add-button:hover {
-  color: darkblue; /* or any other shade you want on hover */
+  background-color: #1565c0;
 }
+
+.add-button:active {
+  transform: scale(0.95);
+}
+

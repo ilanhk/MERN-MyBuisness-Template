@@ -96,7 +96,13 @@ export const getUserById = createAsyncThunk(
 export const updateUser = createAsyncThunk(
   'user/updateUser',
   async ({ id, data }: { id: string; data: Partial<UserState> }) => {
-    const response = await axios.put(`${BASE_URL}/users/${id}`, data);
+    const response = await axios.put(
+      `${BASE_URL}/users/${id}`,
+      data,
+      {
+        withCredentials: true, // <-- THIS sends the cookies!
+      }
+    );
     return [response.data];
   }
 );
@@ -107,6 +113,8 @@ export const deleteUser = createAsyncThunk(
     const response = await axios.delete(`${BASE_URL}/users/${id}`, {
       withCredentials: true,
     });
+
+    console.log(`User with id: ${id} was deleted`, response)
     return id;
   }
 );
