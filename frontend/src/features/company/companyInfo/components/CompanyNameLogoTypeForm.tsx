@@ -12,6 +12,7 @@ import UploadFile from '../../../../general/components/UploadFile';
 import CIFormButton from './CIFormButton';
 import FormMessage from '../../../../general/components/FormMessage';
 import Loader from '../../../../general/components/Loader';
+import '../css/companyInfoForms.css';
 
 const CompanyNameLogoTypeForm = () => {
   const companyInfo = useSelectCompanyInfo();

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import CIFormButton from "../../features/company/companyInfo/components/CIFormButton";
+import CIFormButton from '../../features/company/companyInfo/components/CIFormButton';
 import '../css/AdminTable.css';
-
 
 interface Attributes {
   name: string;
@@ -16,7 +15,12 @@ interface AdminTableProps {
   deleteHook: (id: string) => void;
 }
 
-const AdminTable = ({ dataSet, columns, route, deleteHook }: AdminTableProps) => {
+const AdminTable = ({
+  dataSet,
+  columns,
+  route,
+  deleteHook,
+}: AdminTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
 
@@ -29,8 +33,6 @@ const AdminTable = ({ dataSet, columns, route, deleteHook }: AdminTableProps) =>
   const handlePrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
-
-
 
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = dataSet.slice(startIndex, startIndex + rowsPerPage);
@@ -52,15 +54,30 @@ const AdminTable = ({ dataSet, columns, route, deleteHook }: AdminTableProps) =>
             currentData.map((data) => (
               <tr key={data._id}>
                 {columns.map((col) => (
-                  <td key={col.attribute}>{data[col.attribute]}</td>
+                  <td key={col.attribute}>
+                    {col.attribute === 'fullName' ? (
+                      <Link to={`${route}/${data._id}`}>
+                        {data[col.attribute]}
+                      </Link>
+                    ) : (
+                      data[col.attribute]
+                    )}
+                  </td>
                 ))}
+
                 <td>
                   <Link to={`${route}/${data._id}/edit`}>
-                    <CIFormButton text="Edit" color="primary"/>
+                    <CIFormButton text="Edit" color="primary" />
                   </Link>
                 </td>
                 <td>
-                  <CIFormButton text="Delete" color="error" onClick={async ()=>{ deleteHook(data._id)}}/>
+                  <CIFormButton
+                    text="Delete"
+                    color="error"
+                    onClick={async () => {
+                      deleteHook(data._id);
+                    }}
+                  />
                 </td>
               </tr>
             ))
@@ -80,7 +97,10 @@ const AdminTable = ({ dataSet, columns, route, deleteHook }: AdminTableProps) =>
           <span>
             Page {currentPage} of {totalPages}
           </span>
-          <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+          >
             Next
           </button>
         </div>

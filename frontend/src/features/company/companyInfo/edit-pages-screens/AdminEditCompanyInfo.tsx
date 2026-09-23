@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import { Checkmark } from 'react-checkmark'
 import { 
   useCreateCompanyInfo, 
   useDeleteCompanyInfo, 
@@ -10,6 +9,7 @@ import CIFormButton from "../components/CIFormButton";
 import Loader from "../../../../general/components/Loader";
 import FormMessage from "../../../../general/components/FormMessage";
 import CompanyNameLogoTypeForm from "../components/CompanyNameLogoTypeForm";
+import '../css/companyInfoForms.css';
 
 
 const AdminEditCompanyInfo = () => {
