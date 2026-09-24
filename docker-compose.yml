@@ -1,18 +1,21 @@
-version: '3.8'
-
 services:
   backend:
     container_name: backend
     build:
-      context: ./backend
+      context: ./backend_nest
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "7000:7000"
     # volumes:
     #   - ./backend:/app
     #   - /app/node_modules # --uncomment this for production
     env_file:
-      - ./backend/.env
+      - ./backend_nest/.env
+    environment:
+      MONGO_URI: mongodb://db:27017/mybusiness
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ''
     depends_on:
       - redis
       - db
@@ -42,10 +45,9 @@ services:
       - app-network
 
   redis:
-    container_name: redis-server
     image: redis:7
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - app-network
 

@@ -6,7 +6,6 @@
 **yarn-error.log*
 **pnpm-debug.log*
 **lerna-debug.log*
-
 **/node_modules
 **/dist
 **/dist-ssr
@@ -28,4 +27,8 @@
 **.env
 **package-lock.json
 **nodemon.json
+
+# Keep the NestJS deployment files versioned.
+!backend_nest/Dockerfile
+!backend_nest/package-lock.json
 
