@@ -31,6 +31,7 @@ import { TasksStatusesModule } from './task-management/tasks-statuses/tasks-stat
 import { TaskCommentsModule } from './task-management/task-comments/task-comments.module';
 import { TeamMembersModule } from './task-management/team-members/team-members.module';
 import { TaskAttachmentsModule } from './task-management/task-attachments/task-attachments.module';
+import { AutomatedMessagesModule } from './automated-messages/automated-messages.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { TaskAttachmentsModule } from './task-management/task-attachments/task-a
     TaskCommentsModule,
     TeamMembersModule,
     TaskAttachmentsModule,
+    AutomatedMessagesModule,
   ],
 })
 export class AppModule {}
