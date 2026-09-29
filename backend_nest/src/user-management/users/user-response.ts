@@ -1,8 +1,8 @@
-import { UserDocument } from './user.schema';
+import { AppUser } from './user.entity';
 
-export function toProfileResponse(user: UserDocument) {
+export function toProfileResponse(user: AppUser) {
   return {
-    _id: user._id,
+    _id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     fullName: user.fullName,
@@ -13,9 +13,9 @@ export function toProfileResponse(user: UserDocument) {
   };
 }
 
-export function toAdminResponse(user: UserDocument) {
+export function toAdminResponse(user: AppUser) {
   return {
-    _id: user._id,
+    _id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     fullName: user.fullName,

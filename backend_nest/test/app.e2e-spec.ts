@@ -29,7 +29,7 @@ describe('Health endpoint', () => {
       .expect({
         status: 'degraded',
         service: 'backend-nest',
-        dependencies: { mongo: false, redis: false },
+        dependencies: { mongo: false, postgres: false, postgresConfigured: false, redis: false },
       });
   });
 });

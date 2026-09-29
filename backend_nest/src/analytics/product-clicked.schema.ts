@@ -1,11 +1,11 @@
-import { Document, Model, Schema, model, models, Types } from 'mongoose';
+import { Document, Model, Schema, model, models } from 'mongoose';
 
 export interface ProductClickedDocument extends Document {
-  productId: Types.ObjectId;
+  productId: string;
 }
 
 const productClickedSchema = new Schema<ProductClickedDocument>({
-  productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+  productId: { type: String, required: true },
 }, { timestamps: true });
 
 export const ProductClickedModel: Model<ProductClickedDocument> =

@@ -3,7 +3,7 @@ import { AccessTokenGuard } from '../auth/guards/cookie-token.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { UserDocument } from './user.schema';
+import { AppUser } from './user.entity';
 import { UsersService } from './users.service';
 import { toAdminResponse, toProfileResponse } from './user-response';
 
@@ -13,14 +13,14 @@ export class UsersController {
 
   @Get('profile')
   @UseGuards(AccessTokenGuard)
-  getProfile(@CurrentUser() user: UserDocument) {
+  getProfile(@CurrentUser() user: AppUser) {
     return toProfileResponse(user);
   }
 
   @Put('profile')
   @UseGuards(AccessTokenGuard, RolesGuard)
   @Roles('admin')
-  async updateProfile(@CurrentUser() user: UserDocument, @Body() body: Record<string, unknown>) {
+  async updateProfile(@CurrentUser() user: AppUser, @Body() body: Record<string, unknown>) {
     return toProfileResponse(await this.users.updateProfile(user.id, body));
   }
 

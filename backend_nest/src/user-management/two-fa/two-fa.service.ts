@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as QRCode from 'qrcode';
 import * as speakeasy from 'speakeasy';
-import { UserDocument } from '../users/user.schema';
+import { AppUser } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TwoFaService {
   constructor(private readonly users: UsersService) {}
 
-  async generate(user: UserDocument) {
+  async generate(user: AppUser) {
     const storedUser = await this.users.findById(user.id);
     if (!storedUser) throw new NotFoundException({ message: 'User not found' });
 
@@ -27,7 +27,7 @@ export class TwoFaService {
     return {
       qrCode,
       user: {
-        _id: updatedUser._id,
+        _id: updatedUser.id,
         name: updatedUser.fullName,
         email: updatedUser.email,
         inEmailList: updatedUser.inEmailList,

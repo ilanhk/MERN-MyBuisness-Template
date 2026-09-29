@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { AccessTokenGuard } from '../auth/guards/cookie-token.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
-import { UserDocument } from '../users/user.schema';
+import { AppUser } from '../users/user.entity';
 import { TwoFaService } from './two-fa.service';
 
 @Controller('2fa')
@@ -10,7 +10,7 @@ export class TwoFaController {
   constructor(private readonly twoFa: TwoFaService) {}
 
   @Get('generate')
-  generate(@CurrentUser() user: UserDocument) {
+  generate(@CurrentUser() user: AppUser) {
     return this.twoFa.generate(user);
   }
 

@@ -39,7 +39,7 @@ const usersService = {
 };
 
 const analyticsService = {
-  addProductClick: jest.fn(async () => ({ productId: '507f1f77bcf86cd799439011' })),
+  addProductClick: jest.fn(async () => ({ productId: '8d5137e4-95cc-4bb4-b5fa-29cf67a14023' })),
   addWebTraffic: jest.fn(async () => ({ url: '/home' })),
 };
 
@@ -65,7 +65,7 @@ describe('Analytics routes', () => {
   it('rejects product analytics without authentication', async () => {
     await request(app.getHttpServer())
       .post('/api/analytics/product')
-      .send({ productId: '507f1f77bcf86cd799439011' })
+      .send({ productId: '8d5137e4-95cc-4bb4-b5fa-29cf67a14023' })
       .expect(401);
   });
 
@@ -78,10 +78,10 @@ describe('Analytics routes', () => {
 
     await agent
       .post('/api/analytics/product')
-      .send({ productId: '507f1f77bcf86cd799439011' })
+      .send({ productId: '8d5137e4-95cc-4bb4-b5fa-29cf67a14023' })
       .expect(201)
       .expect((response) => {
-        expect(response.body.productId).toBe('507f1f77bcf86cd799439011');
+        expect(response.body.productId).toBe('8d5137e4-95cc-4bb4-b5fa-29cf67a14023');
       });
   });
 

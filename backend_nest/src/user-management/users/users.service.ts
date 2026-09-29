@@ -1,19 +1,26 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { PrismaService } from '../../infrastructure/prisma.service';
 import { RedisService } from '../../infrastructure/redis.service';
-import { UserDocument, UserModel } from './user.schema';
+import { AppUser, sanitizeUser } from './user.entity';
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly redis: RedisService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async findByEmail(email: string): Promise<UserDocument | null> {
-    return UserModel.findOne({ email: email.toLowerCase().trim() }).exec();
+  async findByEmail(email: string): Promise<AppUser | null> {
+    return this.prisma.client.user.findUnique({ where: { email: email.toLowerCase().trim() } });
   }
 
-  async findById(id: string): Promise<UserDocument | null> {
-    return UserModel.findById(id).exec();
+  async findById(id: string): Promise<AppUser | null> {
+    if (!UUID_PATTERN.test(id)) return null;
+    return this.prisma.client.user.findUnique({ where: { id } });
   }
 
   async create(data: {
@@ -23,96 +30,132 @@ export class UsersService {
     password: string;
     isEmployee?: boolean;
     inEmailList?: boolean;
-  }): Promise<UserDocument> {
+  }): Promise<AppUser> {
     const password = await bcrypt.hash(data.password, 10);
-    return UserModel.create({
-      ...data,
-      email: data.email.toLowerCase().trim(),
-      fullName: `${data.firstName} ${data.lastName}`,
-      password,
+    return this.prisma.client.user.create({
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        fullName: `${data.firstName} ${data.lastName}`,
+        email: data.email.toLowerCase().trim(),
+        password,
+        isEmployee: Boolean(data.isEmployee),
+        inEmailList: Boolean(data.inEmailList),
+      },
     });
   }
 
-  async matchesPassword(user: UserDocument, password: string): Promise<boolean> {
+  async matchesPassword(user: AppUser, password: string): Promise<boolean> {
     return bcrypt.compare(password, user.password);
   }
 
-  async save(user: UserDocument): Promise<UserDocument> {
-    return user.save();
+  // Persists every mutable field on `user`; callers mutate the plain object then call save().
+  async save(user: AppUser): Promise<AppUser> {
+    const updated = await this.prisma.client.user.update({
+      where: { id: user.id },
+      data: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        fullName: user.fullName,
+        email: user.email,
+        password: user.password,
+        isEmployee: user.isEmployee,
+        isAdmin: user.isAdmin,
+        isSuperAdmin: user.isSuperAdmin,
+        inEmailList: user.inEmailList,
+        twoFaSecret: user.twoFaSecret,
+        refreshToken: user.refreshToken,
+        resetPasswordToken: user.resetPasswordToken,
+        resetPasswordExpires: user.resetPasswordExpires,
+      },
+    });
+    await this.invalidateCaches(user.id);
+    return updated;
   }
 
-  async createGoogleUser(firstName: string, lastName: string, email: string): Promise<UserDocument> {
+  async createGoogleUser(firstName: string, lastName: string, email: string): Promise<AppUser> {
     const password = await bcrypt.hash(randomBytes(32).toString('hex'), 10);
-    return UserModel.create({
-      firstName,
-      lastName,
-      fullName: `${firstName} ${lastName}`,
-      email: email.toLowerCase().trim(),
-      password,
-      inEmailList: true,
+    return this.prisma.client.user.create({
+      data: {
+        firstName,
+        lastName,
+        fullName: `${firstName} ${lastName}`,
+        email: email.toLowerCase().trim(),
+        password,
+        inEmailList: true,
+      },
     });
   }
 
-  async findByResetToken(tokenHash: string): Promise<UserDocument | null> {
-    return UserModel.findOne({
-      resetPasswordToken: tokenHash,
-      resetPasswordExpires: { $gt: Date.now() },
-    }).exec();
+  async findByResetToken(tokenHash: string): Promise<AppUser | null> {
+    return this.prisma.client.user.findFirst({
+      where: {
+        resetPasswordToken: tokenHash,
+        resetPasswordExpires: { gt: new Date() },
+      },
+    });
   }
 
-  async resetPassword(user: UserDocument, password: string): Promise<void> {
-    user.password = await bcrypt.hash(password, 10);
-    user.resetPasswordToken = null;
-    user.resetPasswordExpires = null;
-    await user.save();
+  async resetPassword(user: AppUser, password: string): Promise<void> {
+    const hashed = await bcrypt.hash(password, 10);
+    await this.prisma.client.user.update({
+      where: { id: user.id },
+      data: { password: hashed, resetPasswordToken: null, resetPasswordExpires: null },
+    });
     await this.invalidateCaches(user.id);
   }
 
-  async updateProfile(id: string, data: Record<string, unknown>): Promise<UserDocument> {
+  async updateProfile(id: string, data: Record<string, unknown>): Promise<AppUser> {
     const user = await this.findById(id);
     if (!user) {
       throw new NotFoundException({ message: 'User not found' });
     }
 
-    if (typeof data.firstName === 'string' && data.firstName.trim()) user.firstName = data.firstName.trim();
-    if (typeof data.lastName === 'string' && data.lastName.trim()) user.lastName = data.lastName.trim();
-    if (typeof data.fullName === 'string' && data.fullName.trim()) user.fullName = data.fullName.trim();
-    if (typeof data.email === 'string' && data.email.trim()) user.email = data.email.toLowerCase().trim();
-    if (typeof data.inEmailList === 'boolean') user.inEmailList = data.inEmailList;
-    if (typeof data.twoFaSecret === 'string' || data.twoFaSecret === null) user.twoFaSecret = data.twoFaSecret;
+    const update: Record<string, unknown> = {};
+    if (typeof data.firstName === 'string' && data.firstName.trim()) update.firstName = data.firstName.trim();
+    if (typeof data.lastName === 'string' && data.lastName.trim()) update.lastName = data.lastName.trim();
+    if (typeof data.fullName === 'string' && data.fullName.trim()) update.fullName = data.fullName.trim();
+    if (typeof data.email === 'string' && data.email.trim()) update.email = data.email.toLowerCase().trim();
+    if (typeof data.inEmailList === 'boolean') update.inEmailList = data.inEmailList;
+    if (typeof data.twoFaSecret === 'string' || data.twoFaSecret === null) update.twoFaSecret = data.twoFaSecret;
 
     if (typeof data.password === 'string') {
       if (data.password.length < 12) throw new BadRequestException({ message: 'Password must be at least 12 characters' });
-      user.password = await bcrypt.hash(data.password, 10);
+      update.password = await bcrypt.hash(data.password, 10);
     }
 
-    return user.save();
+    const updated = await this.prisma.client.user.update({ where: { id }, data: update });
+    await this.invalidateCaches(id);
+    return updated;
   }
 
-  async findAll() {
-    return UserModel.find().select('-password -refreshToken').lean().exec();
+  async findAll(): Promise<Array<Omit<AppUser, 'password' | 'refreshToken'>>> {
+    const users = await this.prisma.client.user.findMany({ orderBy: { createdAt: 'desc' } });
+    return users.map(sanitizeUser);
   }
 
-  async findSafeById(id: string) {
-    return UserModel.findById(id).select('-password -refreshToken').lean().exec();
+  async findSafeById(id: string): Promise<Omit<AppUser, 'password' | 'refreshToken'> | null> {
+    const user = await this.findById(id);
+    return user ? sanitizeUser(user) : null;
   }
 
-  async updateUser(id: string, data: Record<string, unknown>): Promise<UserDocument> {
+  async updateUser(id: string, data: Record<string, unknown>): Promise<AppUser> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException({ message: 'User not found' });
 
-    if (typeof data.firstName === 'string' && data.firstName.trim()) user.firstName = data.firstName.trim();
-    if (typeof data.lastName === 'string' && data.lastName.trim()) user.lastName = data.lastName.trim();
-    if (typeof data.fullName === 'string' && data.fullName.trim()) user.fullName = data.fullName.trim();
-    if (typeof data.email === 'string' && data.email.trim()) user.email = data.email.toLowerCase().trim();
-    if (typeof data.isEmployee === 'boolean') user.isEmployee = data.isEmployee;
-    if (typeof data.isAdmin === 'boolean') user.isAdmin = data.isAdmin;
-    if (typeof data.isSuperAdmin === 'boolean') user.isSuperAdmin = data.isSuperAdmin;
-    if (typeof data.inEmailList === 'boolean') user.inEmailList = data.inEmailList;
-    if (typeof data.twoFaSecret === 'string' || data.twoFaSecret === null) user.twoFaSecret = data.twoFaSecret;
-    if (typeof data.password === 'string' && data.password) user.password = await bcrypt.hash(data.password, 10);
+    const update: Record<string, unknown> = {};
+    if (typeof data.firstName === 'string' && data.firstName.trim()) update.firstName = data.firstName.trim();
+    if (typeof data.lastName === 'string' && data.lastName.trim()) update.lastName = data.lastName.trim();
+    if (typeof data.fullName === 'string' && data.fullName.trim()) update.fullName = data.fullName.trim();
+    if (typeof data.email === 'string' && data.email.trim()) update.email = data.email.toLowerCase().trim();
+    if (typeof data.isEmployee === 'boolean') update.isEmployee = data.isEmployee;
+    if (typeof data.isAdmin === 'boolean') update.isAdmin = data.isAdmin;
+    if (typeof data.isSuperAdmin === 'boolean') update.isSuperAdmin = data.isSuperAdmin;
+    if (typeof data.inEmailList === 'boolean') update.inEmailList = data.inEmailList;
+    if (typeof data.twoFaSecret === 'string' || data.twoFaSecret === null) update.twoFaSecret = data.twoFaSecret;
+    if (typeof data.password === 'string' && data.password) update.password = await bcrypt.hash(data.password, 10);
 
-    const updatedUser = await user.save();
+    const updatedUser = await this.prisma.client.user.update({ where: { id }, data: update });
     await this.invalidateCaches(id);
     return updatedUser;
   }
@@ -122,7 +165,7 @@ export class UsersService {
     if (!user) throw new NotFoundException({ message: 'User not found' });
     if (user.isSuperAdmin) throw new BadRequestException({ message: 'Cannot delete admin user' });
 
-    await UserModel.deleteOne({ _id: id }).exec();
+    await this.prisma.client.user.delete({ where: { id } });
     await this.invalidateCaches(id);
   }
 

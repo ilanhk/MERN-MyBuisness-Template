@@ -6,7 +6,7 @@ import * as jwt from 'jsonwebtoken';
 import nodemailer = require('nodemailer');
 import * as speakeasy from 'speakeasy';
 import { RedisService } from '../../infrastructure/redis.service';
-import { UserDocument } from '../users/user.schema';
+import { AppUser } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 
 const CACHE_TTL_SECONDS = 86400;
@@ -79,11 +79,11 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
-  async refresh(response: Response, user: UserDocument) {
+  async refresh(response: Response, user: AppUser) {
     return this.authenticate(response, user);
   }
 
-  async issueTokens(response: Response, user: UserDocument) {
+  async issueTokens(response: Response, user: AppUser) {
     return this.authenticate(response, user);
   }
 
@@ -96,7 +96,7 @@ export class AuthService {
 
     const resetToken = randomBytes(32).toString('hex');
     user.resetPasswordToken = createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
+    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000);
     await this.users.save(user);
 
     const resetUrl = `${this.config.get<string>('BASE_URL')}/reset-password/${resetToken}`;
@@ -139,7 +139,7 @@ export class AuthService {
     return 'Password has been reset successfully.';
   }
 
-  private async authenticate(response: Response, user: UserDocument) {
+  private async authenticate(response: Response, user: AppUser) {
     const accessToken = this.createToken(user.id, 'JWT_SECRET_ACCESS', '15m');
     const refreshToken = this.createToken(user.id, 'JWT_SECRET_REFRESH', '3d');
     user.refreshToken = refreshToken;
@@ -176,9 +176,9 @@ export class AuthService {
     });
   }
 
-  private publicUser(user: UserDocument, accessToken?: string, refreshToken?: string) {
+  private publicUser(user: AppUser, accessToken?: string, refreshToken?: string) {
     return {
-      _id: user._id,
+      _id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       fullName: user.fullName,

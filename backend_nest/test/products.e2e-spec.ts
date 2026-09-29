@@ -5,7 +5,7 @@ import cookieParser = require('cookie-parser');
 import request = require('supertest');
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/user-management/users/users.service';
-import { ProductsService } from '../src/products/products.service';
+import { ProductsService } from '../src/product-management/products/products.service';
 
 process.env.ENABLE_INFRASTRUCTURE = 'false';
 process.env.NODE_ENV = 'development';

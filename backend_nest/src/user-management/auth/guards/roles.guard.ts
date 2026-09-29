@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { ROLES_KEY, UserRole } from '../decorators/roles.decorator';
-import { UserDocument } from '../../users/user.schema';
+import { AppUser } from '../../users/user.entity';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -18,7 +18,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request & { user?: UserDocument }>();
+    const request = context.switchToHttp().getRequest<Request & { user?: AppUser }>();
     const user = request.user;
     if (!user) {
       throw new UnauthorizedException({ message: 'Not authorized' });

@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { RefreshTokenGuard } from './guards/cookie-token.guard';
-import { UserDocument } from '../users/user.schema';
+import { AppUser } from '../users/user.entity';
 
 @Controller('users')
 export class AuthController {
@@ -40,13 +40,13 @@ export class AuthController {
 
   @Get('refresh')
   @UseGuards(RefreshTokenGuard)
-  refresh(@CurrentUser() user: UserDocument, @Res({ passthrough: true }) response: Response) {
+  refresh(@CurrentUser() user: AppUser, @Res({ passthrough: true }) response: Response) {
     return this.auth.refresh(response, user);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    return this.auth.logout(response, (request as Request & { user?: { _id: string } }).user?._id);
+    return this.auth.logout(response, (request as Request & { user?: { id: string } }).user?.id);
   }
 }

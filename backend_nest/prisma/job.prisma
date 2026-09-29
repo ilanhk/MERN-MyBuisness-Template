@@ -1,0 +1,17 @@
+model Job {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  department       String
+  position         String
+  yourRole         String   @map("your_role")
+  qualifications   String
+  advantagesToHave String?  @map("advantages_to_have")
+  city             String
+  country          String
+  jobType          String   @map("job_type")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([name])
+  @@map("jobs")
+}

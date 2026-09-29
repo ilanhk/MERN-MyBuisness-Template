@@ -1,0 +1,20 @@
+model User {
+  id                   String    @id @default(uuid()) @db.Uuid
+  firstName            String    @map("first_name")
+  lastName             String    @map("last_name")
+  fullName             String    @map("full_name")
+  email                String    @unique
+  password             String
+  isEmployee           Boolean   @default(false) @map("is_employee")
+  isAdmin              Boolean   @default(false) @map("is_admin")
+  isSuperAdmin         Boolean   @default(false) @map("is_super_admin")
+  inEmailList          Boolean   @default(false) @map("in_email_list")
+  twoFaSecret          String?   @map("two_fa_secret")
+  refreshToken         String?   @map("refresh_token")
+  resetPasswordToken   String?   @map("reset_password_token")
+  resetPasswordExpires DateTime? @map("reset_password_expires") @db.Timestamptz(6)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
