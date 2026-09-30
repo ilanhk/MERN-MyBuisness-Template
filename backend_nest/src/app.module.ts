@@ -32,6 +32,10 @@ import { TaskCommentsModule } from './task-management/task-comments/task-comment
 import { TeamMembersModule } from './task-management/team-members/team-members.module';
 import { TaskAttachmentsModule } from './task-management/task-attachments/task-attachments.module';
 import { AutomatedMessagesModule } from './automated-messages/automated-messages.module';
+import { DepartmentModule } from './company-management/department/department.module';
+import { SubdepartmentModule } from './subdepartment/subdepartment.module';
+import { RolesModule } from './roles/roles.module';
+import { SuppliersModule } from './product-management/suppliers/suppliers.module';
 
 @Module({
   imports: [
@@ -67,6 +71,10 @@ import { AutomatedMessagesModule } from './automated-messages/automated-messages
     TeamMembersModule,
     TaskAttachmentsModule,
     AutomatedMessagesModule,
+    DepartmentModule,
+    SubdepartmentModule,
+    RolesModule,
+    SuppliersModule,
   ],
 })
 export class AppModule {}

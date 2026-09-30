@@ -2,8 +2,12 @@ model Product {
   id            String   @id @default(uuid()) @db.Uuid
   name          String
   image         String
-  supplier      String
-  category      String
+  companyId            String?     @map("company_id") @db.Uuid
+  company              Company?    @relation(fields: [companyId], references: [id])
+  supplierId            String?     @map("supplier_id") @db.Uuid
+  supplier              Supplier?    @relation(fields: [supplierId], references: [id])
+  categoryId            String?     @map("category_id") @db.Uuid
+  category              Category?    @relation(fields: [categoryId], references: [id])
   description   String
   supplierPrice Decimal  @default(0) @map("supplier_price") @db.Decimal(12, 2)
   price         Decimal  @default(0) @db.Decimal(12, 2)
@@ -12,5 +16,8 @@ model Product {
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@index([name])
+  @@index([companyId])
+  @@index([supplierId])
+  @@index([categoryId])
   @@map("products")
 }
