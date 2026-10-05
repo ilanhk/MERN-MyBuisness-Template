@@ -36,6 +36,8 @@ import { DepartmentModule } from './company-management/department/department.mod
 import { SubdepartmentModule } from './subdepartment/subdepartment.module';
 import { RolesModule } from './roles/roles.module';
 import { SuppliersModule } from './product-management/suppliers/suppliers.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SubscriptionInvoicesModule } from './subscription-invoices/subscription-invoices.module';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { SuppliersModule } from './product-management/suppliers/suppliers.module
     SubdepartmentModule,
     RolesModule,
     SuppliersModule,
+    SubscriptionsModule,
+    SubscriptionInvoicesModule,
   ],
 })
 export class AppModule {}

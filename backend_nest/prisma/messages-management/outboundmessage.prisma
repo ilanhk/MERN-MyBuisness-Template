@@ -1,0 +1,55 @@
+enum MessageStatus {
+  SCHEDULED // waiting for scheduledFor
+  QUEUED // ready for the worker
+  SENT // handed to the provider
+  DELIVERED
+  FAILED
+  BOUNCED
+  CANCELED // e.g. order was canceled before the reminder went out
+  SKIPPED // opted out, no address, limit reached
+
+  @@map("message_status")
+}
+
+/// One row per message. Doubles as the send queue and the audit log.
+model OutboundMessage {
+  id         String         @id @default(uuid()) @db.Uuid
+  companyId  String         @map("company_id") @db.Uuid
+  userId     String?        @map("user_id") @db.Uuid
+  ruleId     String?        @map("rule_id") @db.Uuid
+  templateId String?        @map("template_id") @db.Uuid
+  campaignId String?        @map("campaign_id") @db.Uuid
+  channel    MessageChannel
+  status     MessageStatus  @default(SCHEDULED)
+
+  // Snapshots: what was actually sent, even if the template changes later
+  toAddress String  @map("to_address") // email or phone number
+  subject   String?
+  body      String
+
+  // The "why"
+  triggerEvent      TriggerEvent? @map("trigger_event")
+  triggerEntityType String?       @map("trigger_entity_type") // "order", "task"
+  triggerEntityId   String?       @map("trigger_entity_id") @db.Uuid
+  dedupeKey         String        @unique @map("dedupe_key") // "rule:{ruleId}:order:{orderId}" to prevent duplicates, ex if the "order shipped" event fires twice
+
+  providerMessageId String?   @map("provider_message_id")
+  errorMessage      String?   @map("error_message")
+  attempts          Int       @default(0)
+  scheduledFor      DateTime  @map("scheduled_for") @db.Timestamptz(6)
+  sentAt            DateTime? @map("sent_at") @db.Timestamptz(6)
+  deliveredAt       DateTime? @map("delivered_at") @db.Timestamptz(6)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  company  Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user     User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  rule     AutomationRule?  @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  template MessageTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  campaign Campaign?        @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@index([status, scheduledFor]) // the worker's "what's due?" query
+  @@index([companyId, createdAt])
+  @@index([companyId, triggerEntityType, triggerEntityId])
+  @@index([providerMessageId])
+  @@map("outbound_messages")
+}

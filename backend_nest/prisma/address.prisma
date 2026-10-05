@@ -1,0 +1,41 @@
+/// A saved address for a company or for a user (staff or shopper).
+enum AddressType {
+  BILLING
+  SHIPPING
+  OTHER
+
+  @@map("address_type")
+}
+
+model Address {
+  id        String  @id @default(uuid()) @db.Uuid
+  companyId String  @map("company_id") @db.Uuid
+  userId    String? @map("user_id") @db.Uuid // null = belongs to the company itself
+
+  type      AddressType @default(BILLING)
+  label     String?
+  isDefault Boolean     @default(false) @map("is_default")
+
+  fullName    String? @map("full_name")
+  companyName String? @map("company_name")
+  phone       String?
+
+  line1      String
+  line2      String?
+  city       String
+  state      String?
+  postalCode String? @map("postal_code")
+  country    String  @db.Char(2)
+
+  taxId String? @map("tax_id") //government-issued number that identifies a business (or sometimes a person) for tax purposes.
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, type])
+  @@index([userId])
+  @@map("addresses")
+}

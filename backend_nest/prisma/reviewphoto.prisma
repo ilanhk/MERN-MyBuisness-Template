@@ -1,0 +1,31 @@
+/// A photo uploaded with a review (e.g. the product in use, the delivered package).
+model ReviewPhoto {
+  id           String  @id @default(uuid()) @db.Uuid
+  companyId    String  @map("company_id") @db.Uuid
+  uploadedById String? @map("uploaded_by_id") @db.Uuid
+
+  // Exactly one of these is set
+  productReviewId String? @map("product_review_id") @db.Uuid
+  companyReviewId String? @map("company_review_id") @db.Uuid
+
+  storageKey String       @unique @map("storage_key") // e.g. companyId/reviews/uuid.jpg
+  mimeType   String       @map("mime_type")
+  sizeBytes  Int          @map("size_bytes")
+  width      Int?
+  height     Int?
+  altText    String?      @map("alt_text")
+  position   Int          @default(0) // display order
+  status     ReviewStatus @default(PENDING) // photos can be moderated separately
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  uploadedBy    User?          @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  productReview ProductReview? @relation(fields: [productReviewId], references: [id], onDelete: Cascade)
+  companyReview CompanyReview? @relation(fields: [companyReviewId], references: [id], onDelete: Cascade)
+
+  @@index([productReviewId, position])
+  @@index([companyReviewId, position])
+  @@index([companyId, status])
+  @@map("review_photos")
+}

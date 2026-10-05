@@ -1,0 +1,24 @@
+model TaskAttachment {
+  id           String  @id @default(uuid()) @db.Uuid
+  companyId    String  @map("company_id") @db.Uuid
+  taskId       String  @map("task_id") @db.Uuid
+  commentId    String? @map("comment_id") @db.Uuid // null = attached to the task itself
+  uploadedById String? @map("uploaded_by_id") @db.Uuid
+
+  fileName   String @map("file_name")
+  storageKey String @unique @map("storage_key")
+  mimeType   String @map("mime_type")
+  sizeBytes  Int    @map("size_bytes")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  company    Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  task       Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  comment    TaskComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  uploadedBy User?        @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([taskId])
+  @@index([commentId])
+  @@index([companyId, createdAt])
+  @@map("task_attachments")
+}

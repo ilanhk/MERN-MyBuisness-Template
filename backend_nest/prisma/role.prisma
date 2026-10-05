@@ -1,9 +1,0 @@
-enum Role {
-  SUPER_ADMIN @map("super_admin")
-  ADMIN       @map("admin")
-  MANAGER     @map("manager")
-  EMPLOYEE    @map("employee")
-  USER        @map("user")
-
-  @@map("role")
-}

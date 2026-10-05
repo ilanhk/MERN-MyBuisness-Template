@@ -1,0 +1,34 @@
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  COMPLIMENTARY // free by your decision, not a paying customer
+
+  @@map("subscription_status")
+}
+
+model Subscription {
+  id        String             @id @default(uuid()) @db.Uuid
+  companyId String             @unique @map("company_id") @db.Uuid
+  company   Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status    SubscriptionStatus @default(TRIALING)
+
+  // Payment provider link (e.g. Stripe)
+  providerCustomerId     String?   @map("provider_customer_id")
+  providerSubscriptionId String?   @map("provider_subscription_id")
+  currentPeriodEnd       DateTime? @map("current_period_end") @db.Timestamptz(6)
+
+  // Only used when status = COMPLIMENTARY
+  complimentaryReason    String?   @map("complimentary_reason")
+  complimentaryUntil     DateTime? @map("complimentary_until") @db.Timestamptz(6)
+  complimentaryGrantedBy String?   @map("complimentary_granted_by") @db.Uuid
+
+  invoices SubscriptionInvoice[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, currentPeriodEnd])
+  @@map("subscriptions")
+}

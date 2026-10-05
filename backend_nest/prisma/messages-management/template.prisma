@@ -1,0 +1,38 @@
+enum MessageChannel {
+  EMAIL
+  SMS
+
+  @@map("message_channel")
+}
+
+enum MessageCategory {
+  TRANSACTIONAL // order confirmation, password reset, invoice
+  MARKETING // promotions, newsletters (requires consent + unsubscribe)
+
+  @@map("message_category")
+}
+
+/// Reusable message content. companyId null = platform default that companies can override.
+model MessageTemplate {
+  id        String          @id @default(uuid()) @db.Uuid
+  companyId String?         @map("company_id") @db.Uuid
+  key       String // "order.shipped"
+  channel   MessageChannel
+  category  MessageCategory @default(TRANSACTIONAL)
+  locale    String          @default("en")
+  name      String
+  subject   String? // email only
+  body      String // "Hi {{customerName}}, order {{orderNumber}} shipped"
+  isActive  Boolean         @default(true) @map("is_active")
+  createdAt DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  company   Company?          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  rules     AutomationRule[]
+  campaigns Campaign[]
+  messages  OutboundMessage[]
+
+  @@unique([companyId, key, channel, locale])
+  @@index([companyId])
+  @@map("message_templates")
+}

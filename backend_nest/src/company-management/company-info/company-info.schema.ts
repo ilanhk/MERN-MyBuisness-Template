@@ -1,6 +1,8 @@
 import { Document, Model, Schema, model, models } from 'mongoose';
 
 export interface CompanyInfoDocument extends Document {
+  companyId: string;
+  version: number;
   company: Record<string, unknown>;
   home: Record<string, unknown>;
   about: Record<string, unknown>;
@@ -9,6 +11,8 @@ export interface CompanyInfoDocument extends Document {
 }
 
 const companyInfoSchema = new Schema<CompanyInfoDocument>({
+  companyId: { type: String, required: true, unique: true }, // unique also creates the index
+  version: { type: Number, default: 1 },
   company: { type: Schema.Types.Mixed, default: {} },
   home: { type: Schema.Types.Mixed, default: {} },
   about: { type: Schema.Types.Mixed, default: {} },

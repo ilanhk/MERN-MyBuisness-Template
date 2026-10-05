@@ -1,0 +1,20 @@
+/// A discussion message on a task. Body is sanitized Markdown.
+model TaskComment {
+  id        String    @id @default(uuid()) @db.Uuid
+  companyId String    @map("company_id") @db.Uuid
+  taskId    String    @map("task_id") @db.Uuid
+  authorId  String?   @map("author_id") @db.Uuid
+  body      String
+  editedAt  DateTime? @map("edited_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  task        Task             @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author      User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  attachments TaskAttachment[]
+
+  @@index([taskId, createdAt]) // load a task's comments in order
+  @@index([authorId])
+  @@map("task_comments")
+}

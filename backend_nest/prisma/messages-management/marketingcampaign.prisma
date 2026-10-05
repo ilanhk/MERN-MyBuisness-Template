@@ -1,0 +1,32 @@
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELED
+
+  @@map("campaign_status")
+}
+
+/// A one-off marketing send to a group of recipients.
+model Campaign {
+  id             String         @id @default(uuid()) @db.Uuid
+  companyId      String         @map("company_id") @db.Uuid
+  templateId     String         @map("template_id") @db.Uuid
+  createdById    String?        @map("created_by_id") @db.Uuid
+  name           String
+  channel        MessageChannel
+  status         CampaignStatus @default(DRAFT)
+  audienceFilter Json?          @map("audience_filter") // e.g. { "listId": "...", "boughtInLastDays": 90 }
+  scheduledFor   DateTime?      @map("scheduled_for") @db.Timestamptz(6)
+  sentAt         DateTime?      @map("sent_at") @db.Timestamptz(6)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  company  Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  template MessageTemplate   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  messages OutboundMessage[]
+
+  @@index([companyId, status, scheduledFor])
+  @@map("campaigns")
+}

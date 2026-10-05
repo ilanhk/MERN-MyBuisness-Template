@@ -1,0 +1,45 @@
+enum ShipmentStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+  FAILED
+
+  @@map("shipment_status")
+}
+
+model Shipment {
+  id             String         @id @default(uuid()) @db.Uuid
+  companyId      String         @map("company_id") @db.Uuid
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  orderId        String         @map("order_id") @db.Uuid
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status         ShipmentStatus @default(PENDING)
+  carrier        String?
+  trackingNumber String?        @map("tracking_number")
+  trackingUrl    String?        @map("tracking_url")
+  shippedAt      DateTime?      @map("shipped_at") @db.Timestamptz(6)
+  deliveredAt    DateTime?      @map("delivered_at") @db.Timestamptz(6)
+  createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  items ShipmentItem[]
+
+  @@index([orderId])
+  @@index([companyId, status])
+  @@index([trackingNumber])
+  @@map("shipments")
+}
+
+model ShipmentItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  shipmentId  String    @map("shipment_id") @db.Uuid
+  shipment    Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  orderItemId String    @map("order_item_id") @db.Uuid
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+  quantity    Int
+
+  @@unique([shipmentId, orderItemId])
+  @@index([orderItemId])
+  @@map("shipment_items")
+}

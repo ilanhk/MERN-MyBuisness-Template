@@ -1,0 +1,32 @@
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("review_status")
+}
+
+model ProductReview {
+  id                 String        @id @default(uuid()) @db.Uuid
+  companyId          String        @map("company_id") @db.Uuid
+  company            Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  productId          String        @map("product_id") @db.Uuid
+  product            Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId             String        @map("user_id") @db.Uuid
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItemId        String?       @map("order_item_id") @db.Uuid // proof of purchase
+  orderItem          OrderItem?    @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  rating             Int // 1-5
+  title              String?
+  body               String?
+  status             ReviewStatus  @default(PENDING)
+  isVerifiedPurchase Boolean       @default(false) @map("is_verified_purchase")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  photos             ReviewPhoto[]
+
+  @@unique([productId, userId]) // one review per user per product
+  @@index([companyId, productId, status, createdAt])
+  @@index([userId])
+  @@map("product_reviews")
+}

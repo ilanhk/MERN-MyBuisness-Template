@@ -1,0 +1,49 @@
+model Company {
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String    @unique //domain name before they connect to their one
+  domainName       String?   @unique @map("domain_name")
+  domainVerifiedAt DateTime? @map("domain_verified_at") @db.Timestamptz(6)
+  url              String
+
+  timezone String @default("UTC")
+  locale   String @default("en")
+  currency String @default("USD") @db.Char(3)
+
+  suspendedAt     DateTime? @map("suspended_at") @db.Timestamptz(6)
+  suspendedReason String?   @map("suspended_reason")
+  deletedAt       DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  subscriptions        Subscription[]
+  users                User[]
+  departments          Department[]
+  addresses            Address[]
+  products             Product[]
+  suppliers            Supplier[]
+  jobs                 Job[]
+  services             Service[]
+  categories           Category[]
+  carts                Cart[]
+  orders               Order[]
+  productReviews       ProductReview[]
+  companyReviews       CompanyReview[]
+  reviewPhotos         ReviewPhoto[]
+  shipments            Shipment[]
+  supplierOrders       SupplierOrder[]
+  payments             Payment[]
+  subscriptionInvoices SubscriptionInvoice[]
+  automationRules      AutomationRule[]
+  campaigns            Campaign[]
+  messageConsents      MessageConsent[]
+  messageOptOuts       MessageOptOut[]
+  outboundMessages     OutboundMessage[]
+  messageTemplates     MessageTemplate[]
+  tasks                Task[]
+  taskAttachments      TaskAttachment[]
+  taskComments         TaskComment[]
+
+  @@map("companies")
+}

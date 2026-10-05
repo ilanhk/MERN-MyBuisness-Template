@@ -1,0 +1,24 @@
+/// A shopper's review of the store itself (service, delivery, support).
+model CompanyReview {
+  id                 String        @id @default(uuid()) @db.Uuid
+  companyId          String        @map("company_id") @db.Uuid
+  userId             String        @map("user_id") @db.Uuid
+  orderId            String?       @map("order_id") @db.Uuid // proof of purchase
+  rating             Int // 1-5
+  title              String?
+  body               String?
+  status             ReviewStatus  @default(PENDING)
+  isVerifiedPurchase Boolean       @default(false) @map("is_verified_purchase")
+  createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  photos             ReviewPhoto[]
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@unique([companyId, orderId]) // one store review per order
+  @@index([companyId, status, createdAt])
+  @@index([userId])
+  @@map("company_reviews")
+}

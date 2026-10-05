@@ -1,0 +1,60 @@
+enum SupplierOrderStatus {
+  DRAFT
+  SENT
+  CONFIRMED
+  IN_PRODUCTION
+  SHIPPED
+  RECEIVED
+  CANCELED
+
+  @@map("supplier_order_status")
+}
+
+model SupplierOrder {
+  id          String              @id @default(uuid()) @db.Uuid
+  companyId   String              @map("company_id") @db.Uuid
+  company     Company             @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  supplierId  String              @map("supplier_id") @db.Uuid
+  supplier    Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  createdById String?             @map("created_by_id") @db.Uuid
+  createdBy   User?               @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  orderNumber Int                 @map("order_number")
+  status      SupplierOrderStatus @default(DRAFT)
+
+  currency     String  @db.Char(3)
+  subtotal     Decimal @db.Decimal(12, 2)
+  shippingCost Decimal @default(0) @map("shipping_cost") @db.Decimal(12, 2)
+  total        Decimal @db.Decimal(12, 2)
+
+  expectedDeliveryAt DateTime? @map("expected_delivery_at") @db.Timestamptz(6)
+  receivedAt         DateTime? @map("received_at") @db.Timestamptz(6)
+  notes              String?
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  items SupplierOrderItem[]
+  tasks Task[]
+
+  @@unique([companyId, orderNumber])
+  @@index([companyId, status, createdAt])
+  @@index([companyId, supplierId])
+  @@map("supplier_orders")
+}
+
+model SupplierOrderItem {
+  id              String        @id @default(uuid()) @db.Uuid
+  supplierOrderId String        @map("supplier_order_id") @db.Uuid
+  supplierOrder   SupplierOrder @relation(fields: [supplierOrderId], references: [id], onDelete: Cascade)
+  productId       String?       @map("product_id") @db.Uuid
+  product         Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  description      String // snapshot of what was ordered
+  quantity         Int
+  quantityReceived Int     @default(0) @map("quantity_received")
+  unitCost         Decimal @map("unit_cost") @db.Decimal(12, 2)
+  lineTotal        Decimal @map("line_total") @db.Decimal(12, 2)
+
+  @@index([supplierOrderId])
+  @@index([productId])
+  @@map("supplier_order_items")
+}

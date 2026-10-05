@@ -1,0 +1,34 @@
+enum TriggerEvent {
+  ORDER_PLACED
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  PAYMENT_FAILED
+  CART_ABANDONED
+  SUBSCRIPTION_PAST_DUE
+  TASK_ASSIGNED
+  TASK_DUE_SOON
+  USER_INVITED
+
+  @@map("trigger_event")
+}
+
+/// "When X happens, send template Y, after Z minutes, if conditions match."
+model AutomationRule {
+  id           String       @id @default(uuid()) @db.Uuid
+  companyId    String       @map("company_id") @db.Uuid
+  name         String
+  triggerEvent TriggerEvent @map("trigger_event")
+  templateId   String       @map("template_id") @db.Uuid
+  delayMinutes Int          @default(0) @map("delay_minutes") // e.g. 60 for abandoned cart
+  conditions   Json? // e.g. { "minOrderTotal": 100 }
+  isActive     Boolean      @default(true) @map("is_active")
+  createdAt    DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  company  Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  template MessageTemplate   @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  messages OutboundMessage[]
+
+  @@index([companyId, triggerEvent, isActive])
+  @@map("automation_rules")
+}
