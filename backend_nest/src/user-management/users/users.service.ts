@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
+import { Role } from '@prisma/client';
 import { PrismaService } from '../../infrastructure/prisma.service';
 import { RedisService } from '../../infrastructure/redis.service';
 import { AppUser, sanitizeUser } from './user.entity';
@@ -28,28 +29,29 @@ export class UsersService {
     lastName: string;
     email: string;
     password: string;
+    role?: Role;
     isEmployee?: boolean;
     inEmailList?: boolean;
   }): Promise<AppUser> {
-    const password = await bcrypt.hash(data.password, 10);
+    const passwordHash = await bcrypt.hash(data.password, 10);
     return this.prisma.client.user.create({
       data: {
         firstName: data.firstName,
         lastName: data.lastName,
         fullName: `${data.firstName} ${data.lastName}`,
         email: data.email.toLowerCase().trim(),
-        password,
-        isEmployee: Boolean(data.isEmployee),
+        passwordHash,
+        role: data.role ?? (data.isEmployee ? Role.EMPLOYEE : Role.USER),
         inEmailList: Boolean(data.inEmailList),
       },
     });
   }
 
   async matchesPassword(user: AppUser, password: string): Promise<boolean> {
-    return bcrypt.compare(password, user.password);
+    return bcrypt.compare(password, user.passwordHash);
   }
 
-  // Persists every mutable field on `user`; callers mutate the plain object then call save().
+  // Persists mutable user and authentication state after callers update the object.
   async save(user: AppUser): Promise<AppUser> {
     const updated = await this.prisma.client.user.update({
       where: { id: user.id },
@@ -58,15 +60,19 @@ export class UsersService {
         lastName: user.lastName,
         fullName: user.fullName,
         email: user.email,
-        password: user.password,
-        isEmployee: user.isEmployee,
-        isAdmin: user.isAdmin,
-        isSuperAdmin: user.isSuperAdmin,
+        passwordHash: user.passwordHash,
+        role: user.role,
+        isActive: user.isActive,
+        companyId: user.companyId,
+        departmentId: user.departmentId,
         inEmailList: user.inEmailList,
         twoFaSecret: user.twoFaSecret,
-        refreshToken: user.refreshToken,
-        resetPasswordToken: user.resetPasswordToken,
-        resetPasswordExpires: user.resetPasswordExpires,
+        refreshTokenHash: user.refreshTokenHash,
+        refreshTokenExpiresAt: user.refreshTokenExpiresAt,
+        tokenVersion: user.tokenVersion,
+        resetPasswordTokenHash: user.resetPasswordTokenHash,
+        resetPasswordExpiresAt: user.resetPasswordExpiresAt,
+        lastLogin: user.lastLogin,
       },
     });
     await this.invalidateCaches(user.id);
@@ -81,7 +87,7 @@ export class UsersService {
         lastName,
         fullName: `${firstName} ${lastName}`,
         email: email.toLowerCase().trim(),
-        password,
+        passwordHash: password,
         inEmailList: true,
       },
     });
@@ -90,19 +96,63 @@ export class UsersService {
   async findByResetToken(tokenHash: string): Promise<AppUser | null> {
     return this.prisma.client.user.findFirst({
       where: {
-        resetPasswordToken: tokenHash,
-        resetPasswordExpires: { gt: new Date() },
+        resetPasswordTokenHash: tokenHash,
+        resetPasswordExpiresAt: { gt: new Date() },
       },
     });
   }
 
   async resetPassword(user: AppUser, password: string): Promise<void> {
-    const hashed = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
     await this.prisma.client.user.update({
       where: { id: user.id },
-      data: { password: hashed, resetPasswordToken: null, resetPasswordExpires: null },
+      data: {
+        passwordHash,
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+        tokenVersion: { increment: 1 },
+        resetPasswordTokenHash: null,
+        resetPasswordExpiresAt: null,
+      },
     });
     await this.invalidateCaches(user.id);
+  }
+
+  async revokeAuthentication(userId: string): Promise<void> {
+    await this.prisma.client.user.update({
+      where: { id: userId },
+      data: {
+        refreshTokenHash: null,
+        refreshTokenExpiresAt: null,
+        tokenVersion: { increment: 1 },
+      },
+    });
+    await this.invalidateCaches(userId);
+  }
+
+  async rotateRefreshToken(
+    userId: string,
+    currentHash: string,
+    nextHash: string,
+    expiresAt: Date,
+  ): Promise<boolean> {
+    const result = await this.prisma.client.user.updateMany({
+      where: {
+        id: userId,
+        refreshTokenHash: currentHash,
+      },
+      data: {
+        refreshTokenHash: nextHash,
+        refreshTokenExpiresAt: expiresAt,
+      },
+    });
+
+    if (result.count === 1) {
+      await this.invalidateCaches(userId);
+      return true;
+    }
+
+    return false;
   }
 
   async updateProfile(id: string, data: Record<string, unknown>): Promise<AppUser> {
@@ -121,7 +171,8 @@ export class UsersService {
 
     if (typeof data.password === 'string') {
       if (data.password.length < 12) throw new BadRequestException({ message: 'Password must be at least 12 characters' });
-      update.password = await bcrypt.hash(data.password, 10);
+      update.passwordHash = await bcrypt.hash(data.password, 10);
+      update.tokenVersion = { increment: 1 };
     }
 
     const updated = await this.prisma.client.user.update({ where: { id }, data: update });
@@ -129,12 +180,36 @@ export class UsersService {
     return updated;
   }
 
-  async findAll(): Promise<Array<Omit<AppUser, 'password' | 'refreshToken'>>> {
+  async findAll(): Promise<
+    Array<
+      Omit<
+        AppUser,
+        | 'passwordHash'
+        | 'refreshTokenHash'
+        | 'refreshTokenExpiresAt'
+        | 'resetPasswordTokenHash'
+        | 'resetPasswordExpiresAt'
+        | 'twoFaSecret'
+      >
+    >
+  > {
     const users = await this.prisma.client.user.findMany({ orderBy: { createdAt: 'desc' } });
     return users.map(sanitizeUser);
   }
 
-  async findSafeById(id: string): Promise<Omit<AppUser, 'password' | 'refreshToken'> | null> {
+  async findSafeById(
+    id: string,
+  ): Promise<
+    Omit<
+      AppUser,
+      | 'passwordHash'
+      | 'refreshTokenHash'
+      | 'refreshTokenExpiresAt'
+      | 'resetPasswordTokenHash'
+      | 'resetPasswordExpiresAt'
+      | 'twoFaSecret'
+    > | null
+  > {
     const user = await this.findById(id);
     return user ? sanitizeUser(user) : null;
   }
@@ -148,12 +223,16 @@ export class UsersService {
     if (typeof data.lastName === 'string' && data.lastName.trim()) update.lastName = data.lastName.trim();
     if (typeof data.fullName === 'string' && data.fullName.trim()) update.fullName = data.fullName.trim();
     if (typeof data.email === 'string' && data.email.trim()) update.email = data.email.toLowerCase().trim();
-    if (typeof data.isEmployee === 'boolean') update.isEmployee = data.isEmployee;
-    if (typeof data.isAdmin === 'boolean') update.isAdmin = data.isAdmin;
-    if (typeof data.isSuperAdmin === 'boolean') update.isSuperAdmin = data.isSuperAdmin;
+    if (typeof data.role === 'string' && Object.values(Role).includes(data.role as Role)) {
+      update.role = data.role as Role;
+      update.tokenVersion = { increment: 1 };
+    }
     if (typeof data.inEmailList === 'boolean') update.inEmailList = data.inEmailList;
     if (typeof data.twoFaSecret === 'string' || data.twoFaSecret === null) update.twoFaSecret = data.twoFaSecret;
-    if (typeof data.password === 'string' && data.password) update.password = await bcrypt.hash(data.password, 10);
+    if (typeof data.password === 'string' && data.password) {
+      update.passwordHash = await bcrypt.hash(data.password, 10);
+      update.tokenVersion = { increment: 1 };
+    }
 
     const updatedUser = await this.prisma.client.user.update({ where: { id }, data: update });
     await this.invalidateCaches(id);
@@ -163,7 +242,9 @@ export class UsersService {
   async deleteUser(id: string): Promise<void> {
     const user = await this.findById(id);
     if (!user) throw new NotFoundException({ message: 'User not found' });
-    if (user.isSuperAdmin) throw new BadRequestException({ message: 'Cannot delete admin user' });
+    if (user.role === Role.SUPER_ADMIN) {
+      throw new BadRequestException({ message: 'Cannot delete admin user' });
+    }
 
     await this.prisma.client.user.delete({ where: { id } });
     await this.invalidateCaches(id);

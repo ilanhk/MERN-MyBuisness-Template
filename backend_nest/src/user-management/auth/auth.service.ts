@@ -1,31 +1,55 @@
-import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'crypto';
 import { Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import nodemailer = require('nodemailer');
 import * as speakeasy from 'speakeasy';
-import { RedisService } from '../../infrastructure/redis.service';
 import { AppUser } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 
-const CACHE_TTL_SECONDS = 86400;
+const ACCESS_TOKEN_EXPIRES_IN = '15m' as const;
+const REFRESH_TOKEN_EXPIRES_IN = '3d' as const;
+const ACCESS_TOKEN_MAX_AGE_MS = 15 * 60 * 1000;
+const REFRESH_TOKEN_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
+const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
+
+type PublicUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  role: AppUser['role'];
+  companyId: string | null;
+  departmentId: string | null;
+  inEmailList: boolean;
+  isActive: boolean;
+  twoFactorEnabled: boolean;
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly users: UsersService,
-    private readonly redis: RedisService,
     private readonly config: ConfigService,
   ) {}
 
   async register(response: Response, body: Record<string, unknown>) {
     const firstName = this.requiredString(body.firstName, 'firstName');
     const lastName = this.requiredString(body.lastName, 'lastName');
-    const email = this.requiredString(body.email, 'email');
+    const email = this.requiredEmail(body.email);
     const password = this.requiredString(body.password, 'password');
 
     this.validatePassword(password);
+
     if (await this.users.findByEmail(email)) {
       throw new ConflictException('User already exists');
     }
@@ -35,52 +59,54 @@ export class AuthService {
       lastName,
       email,
       password,
-      isEmployee: Boolean(body.isEmployee),
-      inEmailList: Boolean(body.inEmailList),
+      inEmailList:
+        typeof body.inEmailList === 'boolean' && body.inEmailList,
     });
 
     return this.authenticate(response, user);
   }
 
   async login(response: Response, body: Record<string, unknown>) {
-    const email = this.requiredString(body.email, 'email');
+    const email = this.requiredEmail(body.email);
     const password = this.requiredString(body.password, 'password');
     const user = await this.users.findByEmail(email);
 
-    if (!user || !(await this.users.matchesPassword(user, password))) {
-      throw new HttpException({ message: 'Invalid Email or Password' }, HttpStatus.UNAUTHORIZED);
+    if (
+      !user ||
+      !user.isActive ||
+      !(await this.users.matchesPassword(user, password))
+    ) {
+      throw new HttpException(
+        { message: 'Invalid Email or Password' },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (user.twoFaSecret) {
-      const twoFaCode = body.twoFaCode;
-      if (typeof twoFaCode !== 'string' || !twoFaCode) {
-        throw new HttpException({ message: '2FA code required' }, HttpStatus.BAD_REQUEST);
-      }
-      const isVerified = speakeasy.totp.verify({
-        secret: user.twoFaSecret,
-        encoding: 'base32',
-        token: twoFaCode,
-      });
-      if (!isVerified) {
-        throw new HttpException({ message: 'Invalid 2FA' }, HttpStatus.BAD_REQUEST);
-      }
+      this.verifyTwoFactorCode(user.twoFaSecret, body.twoFaCode);
     }
 
+    user.lastLogin = new Date();
     return this.authenticate(response, user);
   }
 
   async logout(response: Response, userId?: string) {
-    if (userId && this.redis.getClient()) {
-      await this.redis.getClient()?.del([`user:${userId}`, `userSafe:${userId}`, 'users']);
+    if (userId) {
+      await this.users.revokeAuthentication(userId);
     }
 
-    response.clearCookie(this.config.get<string>('ACCESS_TOKEN_NAME') ?? 'accesstoken');
-    response.clearCookie(this.config.get<string>('REFRESH_TOKEN_NAME') ?? 'refreshtoken');
+    this.clearCookie(response, 'ACCESS_TOKEN_NAME');
+    this.clearCookie(response, 'REFRESH_TOKEN_NAME');
+
     return { message: 'Logged out successfully' };
   }
 
-  async refresh(response: Response, user: AppUser) {
-    return this.authenticate(response, user);
+  async refresh(
+    response: Response,
+    user: AppUser,
+    presentedRefreshToken: string,
+  ) {
+    return this.authenticate(response, user, presentedRefreshToken);
   }
 
   async issueTokens(response: Response, user: AppUser) {
@@ -88,18 +114,28 @@ export class AuthService {
   }
 
   async forgotPassword(body: Record<string, unknown>) {
-    const email = this.requiredString(body.email, 'email');
+    const email = this.requiredEmail(body.email);
     const user = await this.users.findByEmail(email);
+    const response = {
+      message:
+        'If an account exists for that email, a reset link has been sent.',
+    };
+
     if (!user) {
-      throw new HttpException({ message: 'User not found' }, HttpStatus.BAD_REQUEST);
+      return response;
     }
 
     const resetToken = randomBytes(32).toString('hex');
-    user.resetPasswordToken = createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000);
+    user.resetPasswordTokenHash = createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    user.resetPasswordExpiresAt = new Date(
+      Date.now() + PASSWORD_RESET_TTL_MS,
+    );
     await this.users.save(user);
 
-    const resetUrl = `${this.config.get<string>('BASE_URL')}/reset-password/${resetToken}`;
+    const baseUrl = this.config.get<string>('BASE_URL');
+    const resetUrl = `${baseUrl}/reset-password/${resetToken}`;
     const transporter = nodemailer.createTransport({
       host: 'smtp.office365.com',
       port: 465,
@@ -118,77 +154,177 @@ export class AuthService {
       text: `Please use this link to reset your password: ${resetUrl}`,
     });
 
-    return { message: 'Password reset link sent to your email address' };
+    return response;
   }
 
   async resetPassword(body: Record<string, unknown>, routeToken?: string) {
-    const resetToken = typeof body.resetToken === 'string' ? body.resetToken : routeToken;
+    const resetToken =
+      typeof body.resetToken === 'string' ? body.resetToken : routeToken;
     const newPassword = this.requiredString(body.newPassword, 'newPassword');
+
     if (!resetToken) {
-      throw new HttpException({ message: 'Invalid or expired token' }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        { message: 'Invalid or expired token' },
+        HttpStatus.BAD_REQUEST,
+      );
     }
+
     this.validatePassword(newPassword);
 
     const tokenHash = createHash('sha256').update(resetToken).digest('hex');
     const user = await this.users.findByResetToken(tokenHash);
+
     if (!user) {
-      throw new HttpException({ message: 'Invalid or expired token' }, HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        { message: 'Invalid or expired token' },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     await this.users.resetPassword(user, newPassword);
-    return 'Password has been reset successfully.';
+    return { message: 'Password has been reset successfully.' };
   }
 
-  private async authenticate(response: Response, user: AppUser) {
-    const accessToken = this.createToken(user.id, 'JWT_SECRET_ACCESS', '15m');
-    const refreshToken = this.createToken(user.id, 'JWT_SECRET_REFRESH', '3d');
-    user.refreshToken = refreshToken;
-    await this.users.save(user);
-
-    if (this.redis.getClient()) {
-      await this.redis.getClient()?.set(`user:${user.id}`, JSON.stringify(user), { EX: CACHE_TTL_SECONDS });
+  private async authenticate(
+    response: Response,
+    user: AppUser,
+    presentedRefreshToken?: string,
+  ) {
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is inactive');
     }
 
-    this.setCookie(response, 'ACCESS_TOKEN_NAME', accessToken, 15 * 60 * 1000);
-    this.setCookie(response, 'REFRESH_TOKEN_NAME', refreshToken, 3 * 24 * 60 * 60 * 1000);
+    const accessToken = this.createToken(
+      user,
+      'access',
+      'JWT_SECRET_ACCESS',
+      ACCESS_TOKEN_EXPIRES_IN,
+    );
+    const refreshToken = this.createToken(
+      user,
+      'refresh',
+      'JWT_SECRET_REFRESH',
+      REFRESH_TOKEN_EXPIRES_IN,
+    );
+    const refreshTokenHash = createHash('sha256')
+      .update(refreshToken)
+      .digest('hex');
+    const refreshTokenExpiresAt = new Date(
+      Date.now() + REFRESH_TOKEN_MAX_AGE_MS,
+    );
 
-    return this.publicUser(user, accessToken, refreshToken);
+    if (presentedRefreshToken) {
+      const currentRefreshTokenHash = createHash('sha256')
+        .update(presentedRefreshToken)
+        .digest('hex');
+      const rotated = await this.users.rotateRefreshToken(
+        user.id,
+        currentRefreshTokenHash,
+        refreshTokenHash,
+        refreshTokenExpiresAt,
+      );
+
+      if (!rotated) {
+        throw new UnauthorizedException('Refresh token has already been used');
+      }
+    } else {
+      user.refreshTokenHash = refreshTokenHash;
+      user.refreshTokenExpiresAt = refreshTokenExpiresAt;
+      await this.users.save(user);
+    }
+
+    this.setCookie(
+      response,
+      'ACCESS_TOKEN_NAME',
+      accessToken,
+      ACCESS_TOKEN_MAX_AGE_MS,
+    );
+    this.setCookie(
+      response,
+      'REFRESH_TOKEN_NAME',
+      refreshToken,
+      REFRESH_TOKEN_MAX_AGE_MS,
+    );
+
+    return this.publicUser(user);
   }
 
-  private createToken(userId: string, secretName: string, expiresIn: jwt.SignOptions['expiresIn']): string {
+  private createToken(
+    user: AppUser,
+    tokenType: 'access' | 'refresh',
+    secretName: string,
+    expiresIn: jwt.SignOptions['expiresIn'],
+  ): string {
     const secret = this.config.get<string>(secretName);
+
     if (!secret) {
       throw new Error(`${secretName} must be set before using authentication.`);
     }
-    return jwt.sign({ userId }, secret, { expiresIn });
+
+    return jwt.sign(
+      {
+        sub: user.id,
+        tokenVersion: user.tokenVersion,
+        tokenType,
+      },
+      secret,
+      {
+        expiresIn,
+        algorithm: 'HS256',
+        issuer: 'mybusiness-api',
+        audience: 'mybusiness-web',
+      },
+    );
   }
 
-  private setCookie(response: Response, name: string, value: string, maxAge: number): void {
+  private setCookie(
+    response: Response,
+    name: string,
+    value: string,
+    maxAge: number,
+  ): void {
     const cookieName = this.config.get<string>(name);
+
     if (!cookieName) {
       throw new Error(`${name} must be set before using authentication.`);
     }
-    response.cookie(cookieName, value, {
-      httpOnly: true,
-      secure: this.config.get<string>('NODE_ENV') !== 'development',
-      sameSite: 'strict',
-      maxAge,
-    });
+
+    response.cookie(cookieName, value, this.getCookieOptions(maxAge));
   }
 
-  private publicUser(user: AppUser, accessToken?: string, refreshToken?: string) {
+  private getCookieOptions(maxAge: number) {
     return {
-      _id: user.id,
+      httpOnly: true,
+      secure: this.config.get<string>('NODE_ENV') !== 'development',
+      sameSite: 'strict' as const,
+      path: '/',
+      maxAge,
+    };
+  }
+
+  private clearCookie(response: Response, configName: string): void {
+    const cookieName = this.config.get<string>(configName);
+
+    if (!cookieName) {
+      throw new Error(`${configName} must be set before using authentication.`);
+    }
+
+    response.clearCookie(cookieName, { path: '/' });
+  }
+
+  private publicUser(user: AppUser): PublicUser {
+    return {
+      id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
       fullName: user.fullName,
       email: user.email,
-      isEmployee: user.isEmployee,
-      isAdmin: user.isAdmin,
-      isSuperAdmin: user.isSuperAdmin,
+      role: user.role,
+      companyId: user.companyId,
+      departmentId: user.departmentId,
       inEmailList: user.inEmailList,
-      ...(accessToken ? { accessToken } : {}),
-      ...(refreshToken ? { refreshToken } : {}),
+      isActive: user.isActive,
+      twoFactorEnabled: Boolean(user.twoFaSecret),
     };
   }
 
@@ -196,12 +332,45 @@ export class AuthService {
     if (typeof value !== 'string' || !value.trim()) {
       throw new BadRequestException(`${field} is required`);
     }
+
     return value.trim();
   }
 
+  private requiredEmail(value: unknown): string {
+    const email = this.requiredString(value, 'email').toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new BadRequestException('A valid email address is required');
+    }
+
+    return email;
+  }
+
   private validatePassword(password: string): void {
-    if (!/^\S{12,}$/.test(password) || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-      throw new BadRequestException('Password must be at least 12 characters and include uppercase, lowercase, number, and special character.');
+    if (
+      !/^\S{12,}$/.test(password) ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
+      throw new BadRequestException(
+        'Password must be at least 12 characters and include uppercase, lowercase, number, and special character.',
+      );
+    }
+  }
+
+  private verifyTwoFactorCode(secret: string, value: unknown): void {
+    const twoFaCode = this.requiredString(value, 'twoFaCode');
+    const isVerified = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token: twoFaCode,
+      window: 1,
+    });
+
+    if (!isVerified) {
+      throw new UnauthorizedException('Invalid credentials');
     }
   }
 }

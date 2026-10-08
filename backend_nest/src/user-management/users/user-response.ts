@@ -2,27 +2,32 @@ import { AppUser } from './user.entity';
 
 export function toProfileResponse(user: AppUser) {
   return {
-    _id: user.id,
+    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     fullName: user.fullName,
     email: user.email,
-    isEmployee: user.isEmployee,
+    role: user.role,
+    companyId: user.companyId,
+    departmentId: user.departmentId,
     inEmailList: user.inEmailList,
-    twoFaSecret: user.twoFaSecret,
+    isActive: user.isActive,
+    twoFactorEnabled: Boolean(user.twoFaSecret),
   };
 }
 
 export function toAdminResponse(user: AppUser) {
   return {
-    _id: user.id,
+    id: user.id,
     firstName: user.firstName,
     lastName: user.lastName,
     fullName: user.fullName,
     email: user.email,
-    isEmployee: user.isEmployee,
-    isAdmin: user.isAdmin,
-    isSuperAdmin: user.isSuperAdmin,
+    role: user.role,
+    companyId: user.companyId,
+    departmentId: user.departmentId,
     inEmailList: user.inEmailList,
+    isActive: user.isActive,
+    twoFactorEnabled: Boolean(user.twoFaSecret),
   };
 }

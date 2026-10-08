@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Role } from '@prisma/client';
 import request = require('supertest');
 import { AppModule } from '../src/app.module';
 import { UsersService } from '../src/user-management/users/users.service';
@@ -15,22 +16,26 @@ process.env.REFRESH_TOKEN_NAME = 'refreshtoken';
 process.env.SESSION_SECRET = 'test-session-secret';
 
 const fakeUser = {
-  _id: '507f1f77bcf86cd799439011',
-  id: '507f1f77bcf86cd799439011',
+  id: '507f1f77-bcf8-6cd7-9943-904391011111',
   firstName: 'Test',
   lastName: 'User',
   fullName: 'Test User',
   email: 'test@example.com',
-  password: 'hashed-password',
-  isEmployee: false,
-  isAdmin: false,
-  isSuperAdmin: false,
+  passwordHash: 'hashed-password',
+  role: Role.USER,
+  isActive: true,
+  companyId: null,
+  departmentId: null,
   inEmailList: false,
   twoFaSecret: null,
-  refreshToken: null,
-  save: jest.fn(async function (this: unknown) { return this; }),
+  refreshTokenHash: null,
+  refreshTokenExpiresAt: null,
+  tokenVersion: 0,
+  resetPasswordTokenHash: null,
+  resetPasswordExpiresAt: null,
+  lastLogin: null,
 };
-const adminUser = { ...fakeUser, isAdmin: true };
+const adminUser = { ...fakeUser, role: Role.ADMIN };
 
 describe('Auth routes', () => {
   let app: INestApplication;
@@ -78,7 +83,7 @@ describe('Auth routes', () => {
       .expect(201)
       .expect((response) => {
         expect(response.body.email).toBe('test@example.com');
-        expect(response.body.accessToken).toEqual(expect.any(String));
+        expect(response.body.accessToken).toBeUndefined();
         expect(response.headers['set-cookie']).toEqual(expect.arrayContaining([
           expect.stringContaining('accesstoken='),
           expect.stringContaining('refreshtoken='),
@@ -97,7 +102,14 @@ describe('Auth routes', () => {
   });
 
   it('logs out and clears authentication cookies', async () => {
-    await request(app.getHttpServer())
+    const agent = request.agent(app.getHttpServer());
+
+    await agent
+      .post('/api/users/login')
+      .send({ email: 'test@example.com', password: 'ValidPassword1!' })
+      .expect(200);
+
+    await agent
       .post('/api/users/logout')
       .expect(200)
       .expect({ message: 'Logged out successfully' });
@@ -127,11 +139,11 @@ describe('Auth routes', () => {
       });
 
     await agent
-      .get('/api/users/refresh')
+      .post('/api/users/refresh')
       .expect(200)
       .expect((response) => {
         expect(response.body.email).toBe('test@example.com');
-        expect(response.body.accessToken).toEqual(expect.any(String));
+        expect(response.body.accessToken).toBeUndefined();
       });
   });
 

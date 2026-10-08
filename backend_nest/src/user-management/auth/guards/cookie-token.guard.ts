@@ -1,12 +1,22 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { createHash, timingSafeEqual } from 'crypto';
 import { Request } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { AppUser } from '../../users/user.entity';
 import { UsersService } from '../../users/users.service';
 
 type TokenKind = 'access' | 'refresh';
 
-type AuthenticatedRequest = Request & { user?: Awaited<ReturnType<UsersService['findById']>> };
+type AuthenticatedRequest = Request & {
+  user?: AppUser;
+  refreshToken?: string;
+};
 
 @Injectable()
 export class CookieTokenGuard implements CanActivate {
@@ -17,37 +27,118 @@ export class CookieTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const tokenName = this.config.get<string>(this.kind === 'access' ? 'ACCESS_TOKEN_NAME' : 'REFRESH_TOKEN_NAME');
+    const request =
+      context.switchToHttp().getRequest<AuthenticatedRequest>();
+
+    const tokenName = this.config.get<string>(
+      this.kind === 'access' ? 'ACCESS_TOKEN_NAME' : 'REFRESH_TOKEN_NAME',
+    );
     const token = tokenName ? request.cookies?.[tokenName] : undefined;
 
-    if (!token) {
-      throw new UnauthorizedException({
-        message: this.kind === 'access' ? 'Access token missing' : 'No token provided',
-      });
+    if (typeof token !== 'string' || !token) {
+      throw new UnauthorizedException(
+        this.kind === 'access'
+          ? 'Access token missing'
+          : 'Refresh token missing',
+      );
     }
 
-    const secret = this.config.get<string>(this.kind === 'access' ? 'JWT_SECRET_ACCESS' : 'JWT_SECRET_REFRESH');
+    const secretName =
+      this.kind === 'access' ? 'JWT_SECRET_ACCESS' : 'JWT_SECRET_REFRESH';
+
+    const secret = this.config.get<string>(secretName);
+
     if (!secret) {
-      throw new Error(`JWT_SECRET_${this.kind.toUpperCase()} must be set before using authentication.`);
+      throw new Error(`${secretName} must be set before using authentication.`);
     }
+
+    let payload: jwt.JwtPayload;
 
     try {
-      const payload = jwt.verify(token, secret) as jwt.JwtPayload;
-      const userId = typeof payload.userId === 'string' ? payload.userId : undefined;
-      const user = userId ? await this.users.findById(userId) : null;
+      const verified = jwt.verify(token, secret, {
+        algorithms: ['HS256'],
+        issuer: 'mybusiness-api',
+        audience: 'mybusiness-web',
+      });
 
-      if (!user) {
-        throw new UnauthorizedException({ message: 'User not found' });
+      if (typeof verified === 'string') {
+        throw new UnauthorizedException('Invalid token payload');
       }
 
-      request.user = user;
-      return true;
+      payload = verified;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
       }
-      throw new UnauthorizedException({ message: 'Invalid or expired token' });
+
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
+
+      throw error;
+    }
+
+    const userId = typeof payload.sub === 'string' ? payload.sub : undefined;
+
+    if (!userId) {
+      throw new UnauthorizedException('Invalid token subject');
+    }
+
+    if (payload.tokenType !== this.kind) {
+      throw new UnauthorizedException('Invalid token type');
+    }
+
+    const user = await this.users.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is inactive');
+    }
+
+    if (
+      typeof payload.tokenVersion !== 'number' ||
+      payload.tokenVersion !== user.tokenVersion
+    ) {
+      throw new UnauthorizedException('Token has been revoked');
+    }
+
+    if (this.kind === 'refresh') {
+      this.assertRefreshTokenIsCurrent(token, user);
+
+      request.refreshToken = token;
+    }
+
+    request.user = user;
+    return true;
+  }
+
+  private assertRefreshTokenIsCurrent(
+    token: string,
+    user: AppUser,
+  ): void {
+    if (!user.refreshTokenHash || !user.refreshTokenExpiresAt) {
+      throw new UnauthorizedException('Refresh session is invalid');
+    }
+
+    if (user.refreshTokenExpiresAt.getTime() <= Date.now()) {
+      throw new UnauthorizedException('Refresh session has expired');
+    }
+
+    const presentedHash = createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    const expectedHash = Buffer.from(user.refreshTokenHash, 'utf8');
+    const actualHash = Buffer.from(presentedHash, 'utf8');
+
+    if (
+      expectedHash.length !== actualHash.length ||
+      !timingSafeEqual(expectedHash, actualHash)
+    ) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }

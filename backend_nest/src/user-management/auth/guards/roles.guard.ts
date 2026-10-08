@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { Role } from '@prisma/client';
 import { ROLES_KEY, UserRole } from '../decorators/roles.decorator';
 import { AppUser } from '../../users/user.entity';
 
@@ -25,9 +26,13 @@ export class RolesGuard implements CanActivate {
     }
 
     const roleMatches = requiredRoles.some((role) => {
-      if (role === 'employee') return user.isEmployee;
-      if (role === 'admin') return user.isAdmin;
-      return user.isSuperAdmin;
+      if (role === 'superAdmin') return user.role === Role.SUPER_ADMIN;
+      if (role === 'admin') return user.role === Role.ADMIN;
+      if (role === 'manager') return user.role === Role.MANAGER;
+      if (role === 'employee') {
+        return user.role === Role.EMPLOYEE || user.role === Role.MANAGER;
+      }
+      return user.role === Role.USER;
     });
 
     if (!roleMatches) {

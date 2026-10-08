@@ -9,26 +9,34 @@ enum Role {
 }
 
 model User {
-  id                   String      @id @default(uuid()) @db.Uuid
-  firstName            String      @map("first_name")
-  lastName             String      @map("last_name")
-  fullName             String      @map("full_name")
-  email                String      @unique
-  password             String
-  role                 Role        @default(USER)
-  isActive             Boolean     @default(true) @map("is_active")
-  companyId            String?     @map("company_id") @db.Uuid
-  company              Company?    @relation(fields: [companyId], references: [id])
-  departmentId         String?     @map("department_id") @db.Uuid
-  department           Department? @relation(fields: [departmentId], references: [id])
-  inEmailList          Boolean     @default(false) @map("in_email_list")
-  twoFaSecret          String?     @map("two_fa_secret")
-  refreshToken         String?     @map("refresh_token")
-  resetPasswordToken   String?     @unique @map("reset_password_token")
-  resetPasswordExpires DateTime?   @map("reset_password_expires") @db.Timestamptz(6)
-  lastLogin            DateTime?   @map("last_login") @db.Timestamptz(6)
-  createdAt            DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt            DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String @id @default(uuid()) @db.Uuid
+  firstName String @map("first_name")
+  lastName  String @map("last_name")
+  fullName  String @map("full_name")
+  email     String @unique
+
+  passwordHash String  @map("password_hash")
+  role         Role    @default(USER)
+  isActive     Boolean @default(true) @map("is_active")
+
+  companyId    String?     @map("company_id") @db.Uuid
+  company      Company?    @relation(fields: [companyId], references: [id])
+  departmentId String?     @map("department_id") @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  inEmailList Boolean @default(false) @map("in_email_list")
+  twoFaSecret String? @map("two_fa_secret")
+
+  refreshTokenHash      String?   @map("refresh_token_hash")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamptz(6)
+  tokenVersion          Int       @default(0) @map("token_version") //to immediately invalidate tokens during security events
+
+  resetPasswordTokenHash String?   @unique @map("reset_password_token_hash")
+  resetPasswordExpiresAt DateTime? @map("reset_password_expires_at") @db.Timestamptz(6)
+
+  lastLogin DateTime? @map("last_login") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   carts                 Cart[]
   orders                Order[]

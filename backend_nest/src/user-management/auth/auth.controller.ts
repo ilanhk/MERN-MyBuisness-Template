@@ -1,22 +1,39 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Req,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
+import { AppUser } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { RefreshTokenGuard } from './guards/cookie-token.guard';
-import { AppUser } from '../users/user.entity';
+import { AccessTokenGuard, RefreshTokenGuard } from './guards/cookie-token.guard';
 
 @Controller('users')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post()
-  register(@Body() body: Record<string, unknown>, @Res({ passthrough: true }) response: Response) {
+  register(
+    @Body() body: Record<string, unknown>,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     return this.auth.register(response, body);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Body() body: Record<string, unknown>, @Res({ passthrough: true }) response: Response) {
+  login(
+    @Body() body: Record<string, unknown>,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     return this.auth.login(response, body);
   }
 
@@ -34,19 +51,34 @@ export class AuthController {
 
   @Post('reset-password/:resetToken')
   @HttpCode(HttpStatus.OK)
-  resetPasswordWithRouteToken(@Param('resetToken') resetToken: string, @Body() body: Record<string, unknown>) {
+  resetPasswordWithRouteToken(
+    @Param('resetToken') resetToken: string,
+    @Body() body: Record<string, unknown>,
+  ) {
     return this.auth.resetPassword(body, resetToken);
   }
 
-  @Get('refresh')
+  @Post('refresh')
   @UseGuards(RefreshTokenGuard)
-  refresh(@CurrentUser() user: AppUser, @Res({ passthrough: true }) response: Response) {
-    return this.auth.refresh(response, user);
+  refresh(
+    @CurrentUser() user: AppUser,
+    @Req() request: Request & { refreshToken?: string },
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    if (!request.refreshToken) {
+      throw new UnauthorizedException('Refresh token missing');
+    }
+
+    return this.auth.refresh(response, user, request.refreshToken);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@Req() request: Request, @Res({ passthrough: true }) response: Response) {
-    return this.auth.logout(response, (request as Request & { user?: { id: string } }).user?.id);
+  @UseGuards(AccessTokenGuard)
+  logout(
+    @CurrentUser() user: AppUser,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.auth.logout(response, user.id);
   }
 }
