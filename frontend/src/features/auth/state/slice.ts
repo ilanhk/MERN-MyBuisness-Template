@@ -103,10 +103,16 @@ export const register = createAsyncThunk(
 
 export const googleOAuth = createAsyncThunk(
   'auth/googleOAuth',
-  async ({ credential }: { credential: string;  }) => {
+  async ({
+    credential,
+    domainName,
+  }: {
+    credential: string;
+    domainName?: string;
+  }) => {
     const response = await axios.post(
       `${BASE_URL}/google/authenticate`,
-      { credential },
+      { credential, domainName },
       { withCredentials: true }
     );
     return response.data;

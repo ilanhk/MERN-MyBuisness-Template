@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Role } from '@prisma/client';
@@ -30,10 +30,16 @@ export class UsersService {
     email: string;
     password: string;
     role?: Role;
-    isEmployee?: boolean;
+    companyId?: string | null;
+    departmentId?: string | null;
     inEmailList?: boolean;
   }): Promise<AppUser> {
     const passwordHash = await bcrypt.hash(data.password, 10);
+
+    if (await this.findByEmail(data.email)) {
+      throw new ConflictException('User already exists');
+    }
+
     return this.prisma.client.user.create({
       data: {
         firstName: data.firstName,
@@ -41,7 +47,9 @@ export class UsersService {
         fullName: `${data.firstName} ${data.lastName}`,
         email: data.email.toLowerCase().trim(),
         passwordHash,
-        role: data.role ?? (data.isEmployee ? Role.EMPLOYEE : Role.USER),
+        role: data.role ?? Role.USER,
+        companyId: data.companyId ?? null,
+        departmentId: data.departmentId ?? null,
         inEmailList: Boolean(data.inEmailList),
       },
     });
@@ -79,7 +87,12 @@ export class UsersService {
     return updated;
   }
 
-  async createGoogleUser(firstName: string, lastName: string, email: string): Promise<AppUser> {
+  async createGoogleUser(
+    firstName: string,
+    lastName: string,
+    email: string,
+    companyId: string,
+  ): Promise<AppUser> {
     const password = await bcrypt.hash(randomBytes(32).toString('hex'), 10);
     return this.prisma.client.user.create({
       data: {
@@ -88,6 +101,7 @@ export class UsersService {
         fullName: `${firstName} ${lastName}`,
         email: email.toLowerCase().trim(),
         passwordHash: password,
+        companyId,
         inEmailList: true,
       },
     });

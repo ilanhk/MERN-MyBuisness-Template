@@ -71,8 +71,8 @@ export const useRegister = () => {
 export const useGoogleOAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   return useCallback(
-    (credential: string ) => {
-      return dispatch(googleOAuth({ credential }));
+    (credential: string, domainName?: string) => {
+      return dispatch(googleOAuth({ credential, domainName }));
     },
     [dispatch]
   );

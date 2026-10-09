@@ -119,7 +119,7 @@ const RegisterScreen = () => {
 
         <h3>OR</h3>
 
-        <GoogleAuthButton /> 
+        <GoogleAuthButton requiresDomain />
       </form>
       
       
